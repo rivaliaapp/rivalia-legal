@@ -1,0 +1,1883 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RIVALIA Admin</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/tabler-icons.min.css">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a0a; --bg2: #080808; --bg3: #0d0d0d; --bg4: #111;
+  --border: #1a1a1a; --border2: #222; --border3: #2a2a2a;
+  --text: #e8e8e8; --text2: #bbb; --text3: #777; --text4: #444; --text5: #555;
+  --card-bg: #0d0d0d; --table-hover: #0f0f0f;
+  --input-bg: #0d0d0d; --input-placeholder: #333;
+  --search-bg: #0d0d0d; --modal-bg: #111;
+  --sidebar-bg: #080808; --topbar-bg: #080808;
+  --scrollbar-track: #080808; --scrollbar-thumb: #1e1e1e;
+}
+body.light {
+  --bg: #f4f4f5; --bg2: #ffffff; --bg3: #f9f9f9; --bg4: #ffffff;
+  --border: #e4e4e7; --border2: #d4d4d8; --border3: #a1a1aa;
+  --text: #18181b; --text2: #3f3f46; --text3: #71717a; --text4: #a1a1aa; --text5: #71717a;
+  --card-bg: #ffffff; --table-hover: #f4f4f5;
+  --input-bg: #ffffff; --input-placeholder: #a1a1aa;
+  --search-bg: #ffffff; --modal-bg: #ffffff;
+  --sidebar-bg: #ffffff; --topbar-bg: #ffffff;
+  --scrollbar-track: #f4f4f5; --scrollbar-thumb: #d4d4d8;
+}
+
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+#login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; gap: 20px; }
+.login-box { background: var(--bg4); border: 1px solid var(--border2); border-radius: 16px; padding: 32px; width: 340px; }
+.login-logo { font-size: 20px; font-weight: 900; color: #E6B84B; letter-spacing: 3px; text-align: center; margin-bottom: 6px; }
+.login-sub { font-size: 12px; color: var(--text5); text-align: center; margin-bottom: 24px; }
+.login-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+.login-label { font-size: 11px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.login-input { padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border3); background: var(--input-bg); color: var(--text); font-size: 14px; width: 100%; }
+.login-input:focus { outline: none; border-color: #E6B84B; }
+.login-btn { width: 100%; padding: 12px; border-radius: 8px; background: #E6B84B; color: #0a0a0a; font-size: 14px; font-weight: 700; border: none; cursor: pointer; margin-top: 6px; }
+.login-btn:hover { background: #d4a63a; }
+.login-error { font-size: 12px; color: #D94343; text-align: center; margin-top: 8px; display: none; }
+
+#admin-screen { display: none; min-height: 100vh; }
+.layout { display: flex; min-height: 100vh; }
+.sidebar { width: 220px; background: var(--sidebar-bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 50; overflow-y: auto; }
+.sidebar-logo { padding: 20px 16px 16px; border-bottom: 1px solid var(--border); }
+.sidebar-logo-text { font-size: 14px; font-weight: 900; color: #E6B84B; letter-spacing: 2px; }
+.sidebar-logo-sub { font-size: 10px; color: var(--text4); margin-top: 2px; }
+.sidebar-section { padding: 12px 8px 4px; }
+.sidebar-section-label { font-size: 9px; font-weight: 700; color: var(--text4); letter-spacing: 0.1em; text-transform: uppercase; padding: 0 8px; margin-bottom: 4px; }
+.nav-item { display: flex; align-items: center; gap: 9px; padding: 9px 10px; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text3); border: none; background: none; width: 100%; text-align: left; }
+.nav-item:hover { background: var(--bg4); color: var(--text2); }
+.nav-item.active { background: rgba(230,184,75,0.1); color: #E6B84B; font-weight: 600; }
+.nav-item i { font-size: 17px; flex-shrink: 0; }
+.sidebar-user { margin-top: auto; padding: 12px 8px; border-top: 1px solid var(--border); }
+.sidebar-user-email { font-size: 11px; color: var(--text4); padding: 4px 10px 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.logout-btn { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-size: 12px; color: var(--text5); border: none; background: none; width: 100%; }
+.logout-btn:hover { color: #D94343; background: rgba(217,67,67,0.08); }
+
+.main-content { margin-left: 220px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+.topbar { padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--topbar-bg); position: sticky; top: 0; z-index: 40; display: flex; align-items: center; justify-content: space-between; }
+.topbar-left h1 { font-size: 17px; font-weight: 700; color: var(--text); }
+.topbar-left p { font-size: 12px; color: var(--text5); margin-top: 2px; }
+.content-area { padding: 24px; flex: 1; }
+.section { display: none; }
+.section.active { display: block; }
+
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.grid3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 20px; }
+.grid4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 20px; }
+.metric { background: var(--bg4); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+.metric-label { font-size: 10px; color: var(--text5); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+.metric-value { font-size: 28px; font-weight: 700; color: #E6B84B; }
+
+.card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 12px; }
+.card-header { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.card-title { font-size: 13px; font-weight: 700; color: var(--text2); }
+.card-body { padding: 16px; }
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; font-size: 10px; color: var(--text4); font-weight: 700; padding: 10px 12px; border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text2); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--table-hover); }
+.table-wrap { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.badge.success { background: rgba(82,183,136,0.12); color: #52B788; }
+.badge.danger { background: rgba(217,67,67,0.12); color: #D94343; }
+.badge.warning { background: rgba(245,158,63,0.12); color: #F59E3F; }
+.badge.accent { background: rgba(79,142,220,0.12); color: #4F8EDC; }
+.badge.gold { background: rgba(230,184,75,0.12); color: #E6B84B; }
+
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--border3); background: var(--bg4); color: var(--text3); transition: all 0.15s; white-space: nowrap; }
+.btn:hover { background: var(--bg3); border-color: var(--border2); color: var(--text); }
+.btn.primary { background: #E6B84B; color: #0a0a0a; border-color: #E6B84B; }
+.btn.primary:hover { background: #d4a63a; }
+.btn.danger { background: rgba(217,67,67,0.08); color: #D94343; border-color: rgba(217,67,67,0.25); }
+.btn.danger:hover { background: rgba(217,67,67,0.15); }
+.btn.success { background: rgba(82,183,136,0.08); color: #52B788; border-color: rgba(82,183,136,0.25); }
+.btn.sm { padding: 4px 10px; font-size: 11px; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.form-row { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+.form-label { font-size: 11px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.form-input { padding: 9px 12px; border-radius: 8px; border: 1px solid var(--border2); background: var(--input-bg); color: var(--text); font-size: 13px; font-family: inherit; width: 100%; }
+.form-input:focus { outline: none; border-color: #E6B84B; }
+.form-input::placeholder { color: var(--input-placeholder); }
+.form-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-full { grid-column: 1/-1; }
+
+.search-bar { display: flex; align-items: center; gap: 10px; background: var(--search-bg); border: 1px solid var(--border); border-radius: 10px; padding: 8px 14px; margin-bottom: 16px; }
+.search-bar i { color: var(--text4); font-size: 16px; }
+.search-bar input { flex: 1; background: none; border: none; color: var(--text); font-size: 13px; outline: none; }
+.search-bar input::placeholder { color: var(--input-placeholder); }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 20px; }
+.modal { background: var(--modal-bg); border: 1px solid var(--border3); border-radius: 16px; width: 480px; max-width: 100%; max-height: 90vh; overflow-y: auto; }
+.modal-header { padding: 20px 20px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; }
+.modal-title { font-size: 16px; font-weight: 700; color: var(--text); }
+.modal-sub { font-size: 12px; color: var(--text5); margin-top: 3px; }
+.modal-close { background: none; border: none; color: var(--text4); cursor: pointer; font-size: 20px; padding: 2px; }
+.modal-close:hover { color: var(--text); }
+.modal-body { padding: 20px; }
+.modal-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+
+.empty { text-align: center; padding: 48px 20px; color: var(--text4); }
+.empty i { font-size: 40px; display: block; margin-bottom: 12px; }
+.empty p { font-size: 13px; }
+
+.loading-row { display: flex; align-items: center; gap: 10px; padding: 24px; color: var(--text4); font-size: 13px; justify-content: center; }
+.spinner { width: 18px; height: 18px; border: 2px solid var(--border2); border-top-color: #E6B84B; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--bg4); border: 1px solid var(--border3); border-radius: 10px; padding: 12px 18px; font-size: 13px; color: var(--text); display: flex; align-items: center; gap: 10px; z-index: 300; box-shadow: 0 8px 24px rgba(0,0,0,0.3); opacity: 0; transform: translateY(8px); transition: all 0.2s; pointer-events: none; max-width: 320px; }
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.success i { color: #52B788; }
+.toast.error i { color: #D94343; }
+.toast.info i { color: #4F8EDC; }
+
+.error-msg { font-size: 12px; color: #D94343; margin-top: 6px; padding: 8px 10px; background: rgba(217,67,67,0.08); border-radius: 6px; display: none; }
+.success-msg { font-size: 12px; color: #52B788; margin-top: 6px; padding: 8px 10px; background: rgba(82,183,136,0.08); border-radius: 6px; display: none; word-break: break-all; }
+
+.avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--bg4); border: 1px solid var(--border3); display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #E6B84B; overflow: hidden; flex-shrink: 0; }
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+.filters-row { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.filter-chip { padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border2); background: var(--bg3); color: var(--text3); font-size: 12px; cursor: pointer; font-weight: 600; }
+.filter-chip:hover { border-color: var(--border3); color: var(--text2); }
+.filter-chip.active { background: rgba(230,184,75,0.1); border-color: #E6B84B; color: #E6B84B; }
+
+.lugar-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.lugar-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.lugar-foto { height: 120px; background: var(--bg4); position: relative; overflow: hidden; }
+.lugar-foto img { width: 100%; height: 100%; object-fit: cover; }
+.lugar-foto-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--text4); font-size: 32px; }
+.lugar-info { padding: 10px 12px; }
+.lugar-nombre { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lugar-ciudad { font-size: 11px; color: var(--text5); margin-bottom: 6px; }
+.lugar-actions-row { display: flex; gap: 6px; }
+
+.theme-btn { background: none; border: 1px solid var(--border2); border-radius: 8px; padding: 6px 10px; cursor: pointer; color: var(--text3); font-size: 14px; display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; }
+.theme-btn:hover { border-color: var(--border3); color: var(--text); }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+
+/* TABS */
+.tab-bar { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+.tab-btn { padding: 9px 16px; font-size: 12px; font-weight: 600; color: var(--text3); background: none; border: none; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color 0.15s; }
+.tab-btn.active { color: #E6B84B; border-bottom-color: #E6B84B; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* EVENT CARDS */
+.event-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; display: flex; gap: 14px; align-items: flex-start; }
+.event-icon { font-size: 24px; flex-shrink: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 10px; background: var(--bg4); }
+.event-info { flex: 1; min-width: 0; }
+.event-titulo { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+.event-desc { font-size: 12px; color: var(--text5); margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.event-meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.event-actions { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; flex-shrink: 0; }
+
+/* COFRE CONFIG */
+.cofre-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: var(--bg4); border-radius: 10px; margin-bottom: 8px; border: 1px solid var(--border); }
+.cofre-icon { font-size: 20px; width: 28px; text-align: center; flex-shrink: 0; }
+.cofre-name { font-size: 13px; font-weight: 700; color: var(--text); flex: 1; }
+.cofre-precio { font-size: 12px; color: var(--text3); margin-left: 4px; }
+
+/* INVENTARIO */
+.inv-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.inv-item { background: var(--bg4); border-radius: 8px; padding: 6px 10px; font-size: 11px; color: var(--text2); border: 1px solid var(--border); font-family: monospace; }
+
+/* CONFIG CARD */
+.config-section-title { font-size: 11px; font-weight: 700; color: var(--text4); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+
+/* HAMBURGER */
+.hamburger { display: none; background: none; border: none; color: var(--text3); cursor: pointer; padding: 6px; border-radius: 8px; }
+.hamburger:hover { background: var(--bg4); }
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 49; }
+
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-220px); transition: transform 0.25s ease; z-index: 50; }
+  .sidebar.open { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,0.5); }
+  .sidebar-overlay.open { display: block; }
+  .main-content { margin-left: 0 !important; }
+  .hamburger { display: flex; align-items: center; justify-content: center; }
+  .grid2, .grid3, .grid4 { grid-template-columns: 1fr 1fr; }
+  .grid4 { grid-template-columns: 1fr 1fr; }
+  .form-grid2 { grid-template-columns: 1fr; }
+  .modal { width: 100% !important; margin: 0 10px; }
+  .content-area { padding: 14px; }
+  .topbar { padding: 12px 14px; }
+  .lugar-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+  .event-card { flex-direction: column; gap: 8px; }
+  .event-actions { flex-direction: row; align-self: flex-start; }
+}
+@media (max-width: 480px) {
+  .grid2, .grid4 { grid-template-columns: 1fr; }
+  .topbar-left h1 { font-size: 14px; }
+}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">⚔ RIVALIA</div>
+    <div class="login-sub">Panel de administración</div>
+    <div class="login-field">
+      <div class="login-label">Email</div>
+      <input class="login-input" id="login-email" type="email" placeholder="admin@rivalia.app" autocomplete="email">
+    </div>
+    <div class="login-field">
+      <div class="login-label">Contraseña</div>
+      <input class="login-input" id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Entrar</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<div id="admin-screen">
+  <div class="layout">
+    <div class="sidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-text">⚔ RIVALIA</div>
+        <div class="sidebar-logo-sub">Panel Admin</div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">General</div>
+        <button class="nav-item active" onclick="navTo('dashboard',this)"><i class="ti ti-dashboard"></i> Dashboard</button>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Usuarios</div>
+        <button class="nav-item" onclick="navTo('usuarios',this)"><i class="ti ti-users"></i> Usuarios</button>
+        <button class="nav-item" onclick="navTo('stories',this)"><i class="ti ti-timeline"></i> Stories</button>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Conquistas</div>
+        <button class="nav-item" onclick="navTo('emblematicos',this)"><i class="ti ti-map-pin"></i> Emblemáticos</button>
+        <button class="nav-item" onclick="navTo('territorios',this)"><i class="ti ti-hexagon"></i> Territorios</button>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Social</div>
+        <button class="nav-item" onclick="navTo('publicaciones',this)"><i class="ti ti-news"></i> Publicaciones</button>
+        <button class="nav-item" onclick="navTo('equipos',this)"><i class="ti ti-shield"></i> Equipos</button>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Competición</div>
+        <button class="nav-item" onclick="navTo('marcas',this)"><i class="ti ti-trophy"></i> Récords</button>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Comunicación</div>
+        <button class="nav-item" onclick="navTo('mensajes',this)"><i class="ti ti-message"></i> Mensajes</button>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Sistema</div>
+        <button class="nav-item" onclick="navTo('stats',this)"><i class="ti ti-chart-bar"></i> Estadísticas</button>
+        <button class="nav-item" onclick="navTo('regalos',this)"><i class="ti ti-gift"></i> Regalos masivos</button>
+        <button class="nav-item" onclick="navTo('eventos',this)"><i class="ti ti-calendar-event"></i> Eventos</button>
+        <button class="nav-item" onclick="navTo('configuracion',this)"><i class="ti ti-settings"></i> Configuración</button>
+      </div>
+      <div class="sidebar-user">
+        <div class="sidebar-user-email" id="sidebar-email"></div>
+        <button class="logout-btn" onclick="doLogout()"><i class="ti ti-logout"></i> Cerrar sesión</button>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="topbar">
+        <div class="topbar-left" style="display:flex;align-items:center;gap:10px">
+          <button class="hamburger" onclick="toggleSidebar()" aria-label="Menú">
+            <i class="ti ti-menu-2" style="font-size:22px"></i>
+          </button>
+          <div>
+            <h1 id="topbar-title">Dashboard</h1>
+            <p id="topbar-sub">Resumen general de RIVALIA</p>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div id="topbar-action"></div>
+          <button class="theme-btn" onclick="toggleTheme()" id="theme-btn"><i class="ti ti-sun"></i> Claro</button>
+        </div>
+      </div>
+
+      <div class="content-area">
+
+        <!-- DASHBOARD -->
+        <div class="section active" id="sec-dashboard">
+          <div class="grid4">
+            <div class="metric"><div class="metric-label">Usuarios</div><div class="metric-value" id="d-usuarios">—</div></div>
+            <div class="metric"><div class="metric-label">Publicaciones</div><div class="metric-value" id="d-pubs">—</div></div>
+            <div class="metric"><div class="metric-label">Entrenos GPS</div><div class="metric-value" id="d-gps">—</div></div>
+            <div class="metric"><div class="metric-label">Territorios</div><div class="metric-value" id="d-terr">—</div></div>
+            <div class="metric"><div class="metric-label">Duelos</div><div class="metric-value" id="d-duelos">—</div></div>
+            <div class="metric"><div class="metric-label">Retos activos</div><div class="metric-value" id="d-retos">—</div></div>
+            <div class="metric"><div class="metric-label">Stories activas</div><div class="metric-value" id="d-stories">—</div></div>
+            <div class="metric"><div class="metric-label">Intentos pendientes</div><div class="metric-value" id="d-intentos">—</div></div>
+          </div>
+          <div class="grid2">
+            <div class="card">
+              <div class="card-header"><span class="card-title">Top usuarios por XP</span></div>
+              <div class="card-body" id="d-top-usuarios"><div class="loading-row"><div class="spinner"></div></div></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">Intentos pendientes</span></div>
+              <div class="card-body" id="d-intentos-list"><div class="loading-row"><div class="spinner"></div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- USUARIOS -->
+        <div class="section" id="sec-usuarios">
+          <div class="search-bar">
+            <i class="ti ti-search"></i>
+            <input id="usuarios-search" placeholder="Buscar por nombre..." oninput="filtrarUsuarios()">
+          </div>
+          <div class="filters-row">
+            <span class="filter-chip active" onclick="setFiltroUsuarios('todos',this)">Todos</span>
+            <span class="filter-chip" onclick="setFiltroUsuarios('real',this)">Reales</span>
+            <span class="filter-chip" onclick="setFiltroUsuarios('bot',this)">Bots</span>
+            <span class="filter-chip" onclick="setFiltroUsuarios('inactivo',this)">Inactivos</span>
+          </div>
+          <div class="table-wrap" id="usuarios-table"><div class="loading-row"><div class="spinner"></div></div></div>
+        </div>
+
+        <!-- STORIES -->
+        <div class="section" id="sec-stories">
+          <div class="table-wrap" id="stories-table"><div class="loading-row"><div class="spinner"></div></div></div>
+        </div>
+
+        <!-- EMBLEMÁTICOS -->
+        <div class="section" id="sec-emblematicos">
+          <div class="search-bar">
+            <i class="ti ti-search"></i>
+            <input id="embl-search" placeholder="Buscar lugar..." oninput="filtrarEmblematicos()">
+          </div>
+          <div id="emblematicos-grid" class="lugar-grid"><div class="loading-row"><div class="spinner"></div></div></div>
+        </div>
+
+        <!-- TERRITORIOS -->
+        <div class="section" id="sec-territorios">
+          <div class="grid2" style="margin-bottom:16px">
+            <div class="metric"><div class="metric-label">Total</div><div class="metric-value" id="terr-total">—</div></div>
+            <div class="metric"><div class="metric-label">Con propietario</div><div class="metric-value" id="terr-owned">—</div></div>
+          </div>
+          <button id="btn-borrar-todos-territorios" class="btn danger" style="margin-bottom:12px;display:none" onclick="resetearTodosTerritorios()"><i class="ti ti-trash"></i> Borrar todos los territorios</button>
+          <div class="table-wrap" id="territorios-table"><div class="loading-row"><div class="spinner"></div></div></div>
+        </div>
+
+        <!-- PUBLICACIONES -->
+        <div class="section" id="sec-publicaciones">
+          <div class="search-bar">
+            <i class="ti ti-search"></i>
+            <input id="pubs-search" placeholder="Buscar en publicaciones..." oninput="filtrarPublicaciones()">
+          </div>
+          <div class="table-wrap" id="pubs-table"><div class="loading-row"><div class="spinner"></div></div></div>
+        </div>
+
+        <!-- EQUIPOS -->
+        <div class="section" id="sec-equipos">
+          <div class="table-wrap" id="equipos-table"><div class="loading-row"><div class="spinner"></div></div></div>
+        </div>
+
+        <!-- RÉCORDS -->
+        <div class="section" id="sec-marcas">
+          <div class="filters-row">
+            <span class="filter-chip active" onclick="setFiltroMarcas('pendiente',this)">Pendientes</span>
+            <span class="filter-chip" onclick="setFiltroMarcas('aceptado',this)">Aceptados</span>
+            <span class="filter-chip" onclick="setFiltroMarcas('rechazado',this)">Rechazados</span>
+            <span class="filter-chip" onclick="setFiltroMarcas('todos',this)">Todos</span>
+          </div>
+          <div class="table-wrap" id="marcas-table"><div class="loading-row"><div class="spinner"></div></div></div>
+        </div>
+
+        <!-- MENSAJES -->
+        <div class="section" id="sec-mensajes">
+          <div class="grid2">
+            <div class="card">
+              <div class="card-header"><span class="card-title"><i class="ti ti-message" style="color:#E6B84B"></i> Mensaje directo a usuario</span></div>
+              <div class="card-body">
+                <div class="form-row"><div class="form-label">Nombre del usuario</div><input class="form-input" id="msg-usuario" placeholder="Nombre exacto del usuario"></div>
+                <div class="form-row"><div class="form-label">Mensaje</div><textarea class="form-input" id="msg-cuerpo" placeholder="Escribe tu mensaje..." rows="4" style="resize:vertical"></textarea></div>
+                <div class="error-msg" id="msg-error"></div>
+                <div class="success-msg" id="msg-success"></div>
+                <button class="btn primary" onclick="enviarMensajeAdmin()" style="width:100%;margin-top:4px"><i class="ti ti-send"></i> Enviar mensaje y notificación</button>
+                <p style="font-size:11px;color:#444;margin-top:8px">El usuario recibirá un push y podrá responder desde la app en el chat de mensajes.</p>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title"><i class="ti ti-key" style="color:#E6B84B"></i> Resetear contraseña</span></div>
+              <div class="card-body">
+                <div class="form-row"><div class="form-label">Email del usuario</div><input class="form-input" id="reset-email" placeholder="usuario@email.com" type="email"></div>
+                <div class="error-msg" id="reset-error"></div>
+                <div class="success-msg" id="reset-link"></div>
+                <button class="btn primary" onclick="resetearPassword()" style="width:100%;margin-top:4px"><i class="ti ti-refresh"></i> Generar link de reseteo</button>
+                <p style="font-size:11px;color:#444;margin-top:8px">Se genera un link de Firebase que puedes enviar al usuario para que cambie su contraseña.</p>
+              </div>
+            </div>
+            <div class="card" style="grid-column:1/-1">
+              <div class="card-header"><span class="card-title"><i class="ti ti-broadcast" style="color:#D94343"></i> Notificación global</span></div>
+              <div class="card-body" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start">
+                <div>
+                  <div class="form-row"><div class="form-label">Título</div><input class="form-input" id="notif-g-titulo" placeholder="Título"></div>
+                  <div class="form-row"><div class="form-label">Mensaje</div><textarea class="form-input" id="notif-g-cuerpo" placeholder="Mensaje para todos los usuarios..." rows="3" style="resize:vertical"></textarea></div>
+                </div>
+                <div>
+                  <p style="font-size:12px;color:#555;margin-bottom:12px">Envía una notificación push a <strong style="color:#D94343">todos los usuarios</strong> con token registrado. Úsalo con cuidado.</p>
+                  <button class="btn danger" onclick="enviarNotifGlobal()" style="width:100%"><i class="ti ti-broadcast"></i> Enviar a todos</button>
+                  <div class="success-msg" id="notif-g-success" style="margin-top:8px"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- REGALOS MASIVOS -->
+        <div class="section" id="sec-regalos">
+          <div class="grid2">
+            <div class="card">
+              <div class="card-header"><span class="card-title"><i class="ti ti-gift" style="color:#E6B84B"></i> Configurar regalo</span></div>
+              <div class="card-body">
+                <div class="config-section-title">Recompensas a entregar</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                  <div class="form-row"><div class="form-label">Rival$ <span style="color:var(--text4)">(0 = no dar)</span></div><input class="form-input" id="reg-rivales" type="number" min="0" placeholder="0"></div>
+                  <div class="form-row"><div class="form-label">XP <span style="color:var(--text4)">(0 = no dar)</span></div><input class="form-input" id="reg-xp" type="number" min="0" placeholder="0"></div>
+                  <div class="form-row"><div class="form-label">PC <span style="color:var(--text4)">(0 = no dar)</span></div><input class="form-input" id="reg-pc" type="number" min="0" placeholder="0"></div>
+                </div>
+                <div class="form-row" style="margin-top:4px"><div class="form-label">Estandarte <span style="color:var(--text4)">(ID exacto, vacío = no dar)</span></div><input class="form-input" id="reg-estandarte" placeholder="est_negro_plumas2"></div>
+                <div class="form-row"><div class="form-label">Borde <span style="color:var(--text4)">(ID exacto, vacío = no dar)</span></div><input class="form-input" id="reg-borde" placeholder="borde_fuego"></div>
+
+                <div class="config-section-title" style="margin-top:16px">Destinatarios</div>
+                <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+                  <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text2)">
+                    <input type="radio" name="reg-dest" value="todos" checked style="accent-color:#E6B84B"> Todos los usuarios
+                  </label>
+                  <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text2)">
+                    <input type="radio" name="reg-dest" value="activos" style="accent-color:#E6B84B"> Solo usuarios activos (último mes)
+                  </label>
+                  <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text2)">
+                    <input type="radio" name="reg-dest" value="manual" style="accent-color:#E6B84B"> UIDs manuales
+                  </label>
+                </div>
+                <div class="form-row" id="reg-uids-wrap" style="display:none">
+                  <div class="form-label">UIDs (uno por línea)</div>
+                  <textarea class="form-input" id="reg-uids" rows="4" placeholder="uid1&#10;uid2&#10;uid3" style="resize:vertical"></textarea>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-label">Motivo / nombre del evento</div>
+                  <input class="form-input" id="reg-motivo" placeholder="Halloween 2026 — Regalo especial">
+                </div>
+
+                <div class="error-msg" id="reg-error"></div>
+                <div class="success-msg" id="reg-ok"></div>
+                <button class="btn primary" style="width:100%;margin-top:8px" id="reg-btn" onclick="enviarRegaloMasivo()">
+                  <i class="ti ti-gift"></i> Enviar regalo
+                </button>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title"><i class="ti ti-history" style="color:#E6B84B"></i> Historial</span></div>
+              <div class="card-body" id="reg-historial">
+                <div style="color:var(--text4);font-size:13px">Los regalos enviados aparecerán aquí.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- EVENTOS -->
+        <div class="section" id="sec-eventos">
+          <div class="filters-row" id="eventos-filters">
+            <span class="filter-chip active" onclick="setFiltroEventos('activo',this)">Activos</span>
+            <span class="filter-chip" onclick="setFiltroEventos('proximo',this)">Próximos</span>
+            <span class="filter-chip" onclick="setFiltroEventos('expirado',this)">Expirados</span>
+            <span class="filter-chip" onclick="setFiltroEventos('todos',this)">Todos</span>
+          </div>
+          <div id="eventos-list"><div class="loading-row"><div class="spinner"></div></div></div>
+        </div>
+
+        <!-- CONFIGURACIÓN -->
+        <div class="section" id="sec-configuracion">
+          <div class="grid2">
+            <div class="card">
+              <div class="card-header"><span class="card-title"><i class="ti ti-video" style="color:#E6B84B"></i> Vídeos Rewarded</span></div>
+              <div class="card-body">
+                <div class="config-section-title">Parámetros de anuncios rewarded</div>
+                <div class="form-row"><div class="form-label">Rival$ por vídeo</div><input class="form-input" id="cfg-rivals-video" type="number" placeholder="30" min="1" max="500"></div>
+                <div class="form-row"><div class="form-label">Límite diario de vídeos</div><input class="form-input" id="cfg-limite-diario" type="number" placeholder="3" min="1" max="100"></div>
+                <div class="success-msg" id="cfg-video-ok"></div>
+                <button class="btn primary" style="width:100%;margin-top:4px" onclick="guardarConfigVideo()"><i class="ti ti-check"></i> Guardar</button>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title"><i class="ti ti-box" style="color:#E6B84B"></i> Precios de cofres</span></div>
+              <div class="card-body">
+                <div class="config-section-title">Precio en Rival$ de cada cofre</div>
+                <div class="cofre-row"><div class="cofre-icon">🪵</div><div class="cofre-name">Madera</div><input class="form-input cofre-input" id="cfg-cofre-madera" type="number" placeholder="150"></div>
+                <div class="cofre-row"><div class="cofre-icon">🥈</div><div class="cofre-name">Plata</div><input class="form-input cofre-input" id="cfg-cofre-plata" type="number" placeholder="400"></div>
+                <div class="cofre-row"><div class="cofre-icon">🥇</div><div class="cofre-name">Oro</div><input class="form-input cofre-input" id="cfg-cofre-oro" type="number" placeholder="900"></div>
+                <div class="cofre-row"><div class="cofre-icon">💎</div><div class="cofre-name">Diamante</div><input class="form-input cofre-input" id="cfg-cofre-diamante" type="number" placeholder="2000"></div>
+                <div class="cofre-row"><div class="cofre-icon">🖤</div><div class="cofre-name">Obsidiana</div><input class="form-input cofre-input" id="cfg-cofre-obsidiana" type="number" placeholder="4000"></div>
+                <div class="success-msg" id="cfg-cofres-ok" style="margin-top:8px"></div>
+                <button class="btn primary" style="width:100%;margin-top:10px" onclick="guardarConfigCofres()"><i class="ti ti-check"></i> Guardar precios</button>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title"><i class="ti ti-info-circle" style="color:#555"></i> Nota sobre configuración dinámica</span></div>
+            <div class="card-body">
+              <p style="font-size:13px;color:var(--text3);line-height:1.6">Los valores aquí guardados se escriben en <code style="color:#E6B84B;background:var(--bg4);padding:1px 5px;border-radius:4px">config/general</code> en Firestore. La app necesita leer de ahí en lugar de los valores hardcodeados para que los cambios tengan efecto. <strong style="color:var(--text2)">Los eventos sí se leen en tiempo real desde la app</strong> si implementas el listener en el contexto.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ESTADÍSTICAS -->
+        <div class="section" id="sec-stats">
+          <div class="grid4">
+            <div class="metric"><div class="metric-label">Publicaciones</div><div class="metric-value" id="s-pubs">—</div></div>
+            <div class="metric"><div class="metric-label">Actividades GPS</div><div class="metric-value" id="s-gps">—</div></div>
+            <div class="metric"><div class="metric-label">Duelos totales</div><div class="metric-value" id="s-duelos">—</div></div>
+            <div class="metric"><div class="metric-label">Retos totales</div><div class="metric-value" id="s-retos">—</div></div>
+            <div class="metric"><div class="metric-label">Participantes</div><div class="metric-value" id="s-parts">—</div></div>
+            <div class="metric"><div class="metric-label">Territorios</div><div class="metric-value" id="s-terr">—</div></div>
+            <div class="metric"><div class="metric-label">Récords activos</div><div class="metric-value" id="s-marcas">—</div></div>
+            <div class="metric"><div class="metric-label">Intentos totales</div><div class="metric-value" id="s-intentos">—</div></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">Top 10 usuarios por XP</span></div>
+            <div class="card-body" id="s-ranking"><div class="loading-row"><div class="spinner"></div></div></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL USUARIO -->
+<div class="modal-overlay" id="modal-usuario" style="display:none" onclick="if(event.target===this)cerrarModal('modal-usuario')">
+  <div class="modal" style="width:540px">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="mu-title">Usuario</div>
+        <div class="modal-sub" id="mu-sub" style="font-family:monospace;font-size:11px"></div>
+      </div>
+      <button class="modal-close" onclick="cerrarModal('modal-usuario')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTabUsuario('datos',this)">Datos</button>
+        <button class="tab-btn" onclick="switchTabUsuario('economia',this)">Economía</button>
+        <button class="tab-btn" onclick="switchTabUsuario('inventario',this)">Inventario</button>
+        <button class="tab-btn" onclick="switchTabUsuario('acciones',this)">Acciones</button>
+      </div>
+
+      <!-- TAB DATOS -->
+      <div class="tab-panel active" id="mu-tab-datos">
+        <div class="form-row"><div class="form-label">Nombre</div><input class="form-input" id="mu-nombre" placeholder="Nombre del usuario"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-row"><div class="form-label">XP (puntosPersonales)</div><input class="form-input" id="mu-xp" type="number" placeholder="0"></div>
+          <div class="form-row"><div class="form-label">Pts oficiales</div><input class="form-input" id="mu-pts" type="number" placeholder="0"></div>
+        </div>
+        <div style="font-size:11px;color:var(--text4);margin-top:4px">⚠ Cambiar XP directamente no dispara eventos en la app. Usar con precaución.</div>
+      </div>
+
+      <!-- TAB ECONOMÍA -->
+      <div class="tab-panel" id="mu-tab-economia">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-row">
+            <div class="form-label">Rival$ <span style="color:var(--text4);text-transform:none;font-weight:400">(monedasRivalia)</span></div>
+            <input class="form-input" id="mu-rivals" type="number" placeholder="0" min="0">
+          </div>
+          <div class="form-row">
+            <div class="form-label">PC <span style="color:var(--text4);text-transform:none;font-weight:400">(puntosConquista)</span></div>
+            <input class="form-input" id="mu-pc" type="number" placeholder="0" min="0">
+          </div>
+        </div>
+        <div style="background:rgba(230,184,75,0.06);border:1px solid rgba(230,184,75,0.15);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--text3);line-height:1.5">
+          ✅ Campos confirmados: <code style="color:#E6B84B">monedasRivalia</code> y <code style="color:#E6B84B">puntosConquista</code>.
+        </div>
+      </div>
+
+      <!-- TAB INVENTARIO -->
+      <div class="tab-panel" id="mu-tab-inventario">
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <input class="form-input" id="mu-inv-nuevo" placeholder="ID del estandarte a añadir" style="flex:1">
+          <button class="btn primary" onclick="añadirEstandarte()"><i class="ti ti-plus"></i> Añadir</button>
+        </div>
+        <div id="mu-inventario-content">
+          <button class="btn" onclick="cargarInventarioUsuario()"><i class="ti ti-refresh"></i> Cargar inventario</button>
+        </div>
+      </div>
+
+      <!-- TAB ACCIONES -->
+      <div class="tab-panel" id="mu-tab-acciones">
+        <div class="card" style="margin-bottom:12px">
+          <div class="card-header"><span class="card-title"><i class="ti ti-key" style="color:#E6B84B"></i> Resetear contraseña</span></div>
+          <div class="card-body">
+            <div class="form-row"><div class="form-label">Email del usuario</div><input class="form-input" id="mu-email" placeholder="usuario@email.com" type="email"></div>
+            <button class="btn" style="width:100%" onclick="resetearPasswordDesdeModal()"><i class="ti ti-refresh"></i> Generar link de reseteo</button>
+            <div class="success-msg" id="mu-reset-link" style="margin-top:8px"></div>
+            <div class="error-msg" id="mu-reset-error"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title"><i class="ti ti-shield-x" style="color:#D94343"></i> Estado de la cuenta</span></div>
+          <div class="card-body" style="display:flex;gap:10px">
+            <button class="btn danger" id="mu-bloquear" onclick="bloquearUsuario()" style="flex:1">Bloquear cuenta</button>
+            <button class="btn warning" id="mu-esbot" onclick="toggleBotUsuario()" style="flex:1;color:#F59E3F;border-color:rgba(245,158,63,0.3);background:rgba(245,158,63,0.08)">Marcar como bot</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="error-msg" id="mu-error"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="cerrarModal('modal-usuario')">Cancelar</button>
+      <button class="btn primary" onclick="guardarUsuario()"><i class="ti ti-check"></i> Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EVENTO -->
+<div class="modal-overlay" id="modal-evento" style="display:none" onclick="if(event.target===this)cerrarModal('modal-evento')">
+  <div class="modal" style="width:520px">
+    <div class="modal-header">
+      <div><div class="modal-title" id="mev-title">Nuevo evento</div><div class="modal-sub">Colección: eventos</div></div>
+      <button class="modal-close" onclick="cerrarModal('modal-evento')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:56px 1fr;gap:12px;align-items:center;margin-bottom:14px">
+        <div>
+          <div class="form-label" style="margin-bottom:5px">Icono</div>
+          <input class="form-input" id="mev-icono" placeholder="🎉" style="text-align:center;font-size:22px;padding:6px">
+        </div>
+        <div class="form-row" style="margin-bottom:0">
+          <div class="form-label">Título *</div>
+          <input class="form-input" id="mev-titulo" placeholder="Doble XP de fin de semana">
+        </div>
+      </div>
+      <div class="form-row"><div class="form-label">Descripción</div><textarea class="form-input" id="mev-desc" rows="2" placeholder="Descripción visible en la app..." style="resize:vertical"></textarea></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-row"><div class="form-label">Inicio *</div><input class="form-input" id="mev-inicio" type="datetime-local"></div>
+        <div class="form-row"><div class="form-label">Fin *</div><input class="form-input" id="mev-fin" type="datetime-local"></div>
+        <div class="form-row"><div class="form-label">Multiplicador XP</div><input class="form-input" id="mev-multxp" type="number" step="0.1" min="1" max="10" placeholder="1.0"></div>
+        <div class="form-row"><div class="form-label">Multiplicador Rival$</div><input class="form-input" id="mev-multmonedas" type="number" step="0.1" min="1" max="10" placeholder="1.0"></div>
+      </div>
+      <div class="form-row"><div class="form-label">Premio extra (texto libre)</div><input class="form-input" id="mev-premio" placeholder="Estandarte exclusivo de Halloween para los top 3"></div>
+      <div class="form-row">
+        <div class="form-label">Tipo</div>
+        <select class="form-input" id="mev-tipo">
+          <option value="xp_boost">Boost XP</option>
+          <option value="monedas_boost">Boost Rival$</option>
+          <option value="doble_xp">Doble XP</option>
+          <option value="conquista_especial">Conquista especial</option>
+          <option value="torneo">Torneo</option>
+          <option value="personalizado">Personalizado</option>
+        </select>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text2)">
+          <input type="checkbox" id="mev-activo" checked style="accent-color:#E6B84B"> Activar inmediatamente
+        </label>
+      </div>
+      <div class="error-msg" id="mev-error"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="cerrarModal('modal-evento')">Cancelar</button>
+      <button class="btn primary" id="mev-save" onclick="guardarEvento()"><i class="ti ti-check"></i> Guardar evento</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PUBLICACIÓN (comentarios) -->
+<div class="modal-overlay" id="modal-publicacion" style="display:none" onclick="if(event.target===this)cerrarModal('modal-publicacion')">
+  <div class="modal" style="width:520px">
+    <div class="modal-header">
+      <div><div class="modal-title" id="mpub-title">Publicación</div><div class="modal-sub" id="mpub-sub"></div></div>
+      <button class="modal-close" onclick="cerrarModal('modal-publicacion')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body" id="mpub-body"><div class="loading-row"><div class="spinner"></div></div></div>
+    <div class="modal-footer">
+      <button class="btn danger" onclick="eliminarPublicacionDesdeModal()"><i class="ti ti-trash"></i> Eliminar publicación</button>
+      <button class="btn" onclick="cerrarModal('modal-publicacion')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL LUGAR -->
+<div class="modal-overlay" id="modal-lugar" style="display:none" onclick="if(event.target===this)cerrarModal('modal-lugar')">
+  <div class="modal">
+    <div class="modal-header">
+      <div><div class="modal-title" id="ml-title">Lugar emblemático</div><div class="modal-sub">Colección emblematicos</div></div>
+      <button class="modal-close" onclick="cerrarModal('modal-lugar')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid2">
+        <div class="form-row"><div class="form-label">Nombre *</div><input class="form-input" id="ml-nombre" placeholder="Parque del Retiro"></div>
+        <div class="form-row"><div class="form-label">Ciudad *</div><input class="form-input" id="ml-ciudad" placeholder="Madrid"></div>
+        <div class="form-row"><div class="form-label">Latitud *</div><input class="form-input" id="ml-lat" type="number" step="0.0001" placeholder="40.4153"></div>
+        <div class="form-row"><div class="form-label">Longitud *</div><input class="form-input" id="ml-lng" type="number" step="0.0001" placeholder="-3.6844"></div>
+        <div class="form-row"><div class="form-label">Radio (metros)</div><input class="form-input" id="ml-radio" type="number" placeholder="500"></div>
+        <div class="form-row"><div class="form-label">Puntos bonus</div><input class="form-input" id="ml-puntos" type="number" placeholder="50"></div>
+        <div class="form-row form-full"><div class="form-label">URL foto (Firebase Storage)</div><input class="form-input" id="ml-foto" placeholder="https://firebasestorage..."></div>
+        <div class="form-row form-full"><div class="form-label">Subir foto directamente</div>
+          <input type="file" id="ml-foto-file" accept="image/*" onchange="previsualizarFoto()" style="color:#aaa;font-size:12px">
+          <div id="ml-foto-preview" style="margin-top:8px"></div>
+        </div>
+        <div class="form-row"><div class="form-label">Tipo de cofre</div><select class="form-input" id="ml-cofre"><option value="">Auto (por puntos)</option><option value="madera">Madera</option><option value="plata">Plata</option><option value="oro">Oro</option><option value="diamante">Diamante</option><option value="obsidiana">Obsidiana</option></select></div>
+        <div class="form-row form-full"><div class="form-label">Descripción</div><input class="form-input" id="ml-desc" placeholder="El pulmón verde de Madrid"></div>
+      </div>
+      <div class="error-msg" id="ml-error"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="cerrarModal('modal-lugar')">Cancelar</button>
+      <button class="btn primary" id="ml-save" onclick="guardarLugar()"><i class="ti ti-check"></i> Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EQUIPO -->
+<div class="modal-overlay" id="modal-equipo" style="display:none" onclick="if(event.target===this)cerrarModal('modal-equipo')">
+  <div class="modal">
+    <div class="modal-header">
+      <div><div class="modal-title" id="me-title">Equipo</div><div class="modal-sub" id="me-sub"></div></div>
+      <button class="modal-close" onclick="cerrarModal('modal-equipo')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body" id="me-body"><div class="loading-row"><div class="spinner"></div></div></div>
+    <div class="modal-footer">
+      <button class="btn danger" onclick="disolverEquipo()">Disolver equipo</button>
+      <button class="btn" onclick="cerrarModal('modal-equipo')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+<div class="toast" id="toast"><i class="ti ti-check"></i><span id="toast-msg"></span></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+<script>
+const ADMIN_UID = 'RsT0lOAaDsWS5hgjYlc2LeRTF3F3';
+const BASE_URL = 'https://europe-west1-deporte-app-e888f.cloudfunctions.net';
+
+firebase.initializeApp({
+  apiKey:"AIzaSyAvHQHoERyB42Zk6aNIoIjm4zUdARgiV4M",
+  authDomain:"deporte-app-e888f.firebaseapp.com",
+  projectId:"deporte-app-e888f",
+  storageBucket:"deporte-app-e888f.firebasestorage.app",
+  messagingSenderId:"306241708285",
+  appId:"1:306241708285:web:756cc331ec217b19245e94"
+});
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
+
+auth.onAuthStateChanged(user => {
+  if (user && user.uid === ADMIN_UID) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-screen').style.display = 'block';
+    document.getElementById('sidebar-email').textContent = user.email;
+    cargarDashboard();
+  } else if (user) {
+    auth.signOut();
+    mostrarLoginError('Acceso denegado.');
+  } else {
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('admin-screen').style.display = 'none';
+  }
+});
+
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  if (!email || !pass) { mostrarLoginError('Introduce email y contraseña.'); return; }
+  auth.signInWithEmailAndPassword(email, pass).catch(e => mostrarLoginError(e.message));
+}
+document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
+function doLogout() { auth.signOut(); }
+function mostrarLoginError(msg) { const el=document.getElementById('login-error'); el.textContent=msg; el.style.display='block'; }
+
+let temaOscuro = true;
+function toggleTheme() {
+  temaOscuro = !temaOscuro;
+  document.body.classList.toggle('light', !temaOscuro);
+  const btn = document.getElementById('theme-btn');
+  btn.innerHTML = temaOscuro ? '<i class="ti ti-sun"></i> Claro' : '<i class="ti ti-moon"></i> Oscuro';
+  localStorage.setItem('rivalia-admin-theme', temaOscuro ? 'dark' : 'light');
+}
+(function() {
+  const saved = localStorage.getItem('rivalia-admin-theme');
+  if (saved === 'light') { temaOscuro = false; document.body.classList.add('light'); const btn = document.getElementById('theme-btn'); if(btn) btn.innerHTML = '<i class="ti ti-moon"></i> Oscuro'; }
+})();
+
+function toggleSidebar() {
+  document.querySelector('.sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('open');
+}
+
+let seccionActual = 'dashboard';
+let filtroUsuarios = 'todos';
+let filtroMarcas = 'pendiente';
+let usuariosCache = [];
+let emblematicoCache = [];
+let publicacionesCache = [];
+let editandoLugarId = null;
+let editandoUsuarioId = null;
+let editandoEquipoId = null;
+
+const SECTION_META = {
+  dashboard:     { title:'Dashboard', sub:'Resumen general de RIVALIA', action:null },
+  usuarios:      { title:'Usuarios', sub:'Buscar, editar, bloquear y gestionar usuarios', action:{ label:'Exportar CSV', fn:'exportarUsuariosCSV' } },
+  stories:       { title:'Stories activas', sub:'Stories publicadas en las últimas 24h', action:null },
+  emblematicos:  { title:'Lugares emblemáticos', sub:'Gestiona los lugares especiales de Conquistas', action:{ label:'Añadir lugar', fn:'abrirModalLugar' } },
+  territorios:   { title:'Territorios', sub:'Celdas de territoryCells en Firestore', action:null },
+  publicaciones: { title:'Publicaciones', sub:'Moderar y eliminar publicaciones del muro', action:null },
+  equipos:       { title:'Equipos', sub:'Ver, gestionar y disolver grupos/equipos', action:null },
+  marcas:        { title:'Récords e intentos', sub:'Aprobar, rechazar y gestionar marcas', action:null },
+  mensajes:      { title:'Mensajes y notificaciones', sub:'Enviar mensajes directos y notificaciones', action:null },
+  stats:         { title:'Estadísticas', sub:'Métricas globales de la plataforma', action:null },
+  regalos:       { title:'Regalos masivos', sub:'Envía recompensas a todos los usuarios o a un grupo', action:null },
+  eventos:       { title:'Eventos', sub:'Retos temporales, multiplicadores y premios exclusivos', action:{ label:'Nuevo evento', fn:'abrirModalEvento' } },
+  configuracion: { title:'Configuración', sub:'Precios de cofres, límites de rewarded y parámetros globales', action:null },
+};
+
+function navTo(sec, el) {
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-'+sec).classList.add('active');
+  const m = SECTION_META[sec];
+  document.getElementById('topbar-title').textContent = m.title;
+  document.getElementById('topbar-sub').textContent = m.sub;
+  const ac = document.getElementById('topbar-action');
+  ac.innerHTML = m.action ? `<button class="btn primary" onclick="${m.action.fn}()"><i class="ti ti-plus"></i> ${m.action.label}</button>` : '';
+  seccionActual = sec;
+  // cerrar sidebar en mobile
+  document.querySelector('.sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+  cargarSeccion(sec);
+}
+
+function cargarSeccion(sec) {
+  if (sec==='dashboard') cargarDashboard();
+  else if (sec==='usuarios') cargarUsuarios();
+  else if (sec==='stories') cargarStories();
+  else if (sec==='emblematicos') cargarEmblematicos();
+  else if (sec==='territorios') cargarTerritorios();
+  else if (sec==='publicaciones') cargarPublicaciones();
+  else if (sec==='equipos') cargarEquipos();
+  else if (sec==='marcas') cargarMarcas();
+  else if (sec==='stats') cargarStats();
+  else if (sec==='regalos') cargarRegalos();
+  else if (sec==='eventos') cargarEventos();
+  else if (sec==='configuracion') cargarConfiguracion();
+}
+
+function toast(msg, tipo='success') {
+  const el = document.getElementById('toast');
+  el.querySelector('i').className = tipo==='success'?'ti ti-check':tipo==='error'?'ti ti-x':'ti ti-info-circle';
+  el.className = 'toast '+tipo;
+  document.getElementById('toast-msg').textContent = msg;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), 3500);
+}
+
+function cerrarModal(id) { document.getElementById(id).style.display='none'; }
+function loading(id) { document.getElementById(id).innerHTML='<div class="loading-row"><div class="spinner"></div></div>'; }
+function empty(id, icon, msg) { document.getElementById(id).innerHTML=`<div class="empty"><i class="ti ti-${icon}"></i><p>${msg}</p></div>`; }
+
+async function callFunction(endpoint, body) {
+  const res = await fetch(`${BASE_URL}/${endpoint}`, {
+    method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)
+  });
+  return res.json();
+}
+
+// DASHBOARD
+async function cargarDashboard() {
+  try {
+    const [parts, pubs, gps, terr, duelos, retos, stories, intentos] = await Promise.all([
+      db.collection('participantes').get(),
+      db.collection('publicaciones').limit(500).get(),
+      db.collection('actividadesGPS').limit(500).get(),
+      db.collection('territoryCells').get(),
+      db.collection('duelos').limit(500).get(),
+      db.collection('retos').where('estado','==','aceptado').limit(500).get(),
+      db.collection('participantes').where('estadoFecha','>',Date.now()-86400000).get(),
+      db.collection('intentos').where('estado','==','pendiente').get(),
+    ]);
+    document.getElementById('d-usuarios').textContent = parts.size;
+    document.getElementById('d-pubs').textContent = pubs.size;
+    document.getElementById('d-gps').textContent = gps.size;
+    document.getElementById('d-terr').textContent = terr.size;
+    document.getElementById('d-duelos').textContent = duelos.size;
+    document.getElementById('d-retos').textContent = retos.size;
+    document.getElementById('d-stories').textContent = stories.docs.filter(d=>d.data().estadoFotos?.length||d.data().estadoTexto).length;
+    document.getElementById('d-intentos').textContent = intentos.size;
+    const topUsers = parts.docs.map(d=>({...d.data(),id:d.id})).sort((a,b)=>(b.puntosPersonales||0)-(a.puntosPersonales||0)).slice(0,5);
+    document.getElementById('d-top-usuarios').innerHTML = topUsers.map((u,i)=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #111">
+        <span style="color:#444;font-size:12px;width:16px">${i+1}</span>
+        <div class="avatar">${u.fotoUrl?`<img src="${u.fotoUrl}">`:(u.nombre||'?')[0].toUpperCase()}</div>
+        <span style="flex:1;font-size:13px;color:#ccc">${u.nombre||'—'}</span>
+        <span style="color:#E6B84B;font-weight:700;font-size:13px">${(u.puntosPersonales||0).toLocaleString()} XP</span>
+      </div>`).join('') || '<div style="padding:16px;color:#333;text-align:center">Sin datos</div>';
+    const inList = intentos.docs.slice(0,5).map(d=>({id:d.id,...d.data()}));
+    document.getElementById('d-intentos-list').innerHTML = inList.length ? inList.map(i=>`
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #111">
+        <span style="flex:1;font-size:13px;color:#ccc">${i.autorNombre} · ${i.marcaId}</span>
+        <span class="badge gold">${i.valor}</span>
+        <button class="btn sm success" onclick="resolverIntento('${i.id}','aceptado')">✓</button>
+        <button class="btn sm danger" onclick="resolverIntento('${i.id}','rechazado')">✗</button>
+      </div>`).join('') : '<div style="padding:16px;color:#333;font-size:13px;text-align:center">Sin intentos pendientes</div>';
+  } catch(e) { toast('Error cargando dashboard: '+e.message,'error'); }
+}
+
+// USUARIOS
+async function cargarUsuarios() {
+  loading('usuarios-table');
+  try {
+    const snap = await db.collection('participantes').orderBy('puntosPersonales','desc').limit(100).get();
+    usuariosCache = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderUsuarios();
+  } catch(e) { empty('usuarios-table','alert-circle','Error: '+e.message); }
+}
+function filtrarUsuarios() { renderUsuarios(); }
+function setFiltroUsuarios(f, el) {
+  filtroUsuarios = f;
+  document.querySelectorAll('#sec-usuarios .filter-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderUsuarios();
+}
+function renderUsuarios() {
+  const q = (document.getElementById('usuarios-search')?.value||'').toLowerCase();
+  let lista = usuariosCache.filter(u => {
+    const matchQ = !q || (u.nombre||'').toLowerCase().includes(q);
+    const matchF = filtroUsuarios==='todos' || (filtroUsuarios==='bot'&&u.esBot) || (filtroUsuarios==='real'&&!u.esBot) || (filtroUsuarios==='inactivo'&&u.activo===false);
+    return matchQ && matchF;
+  });
+  if (!lista.length) { empty('usuarios-table','users','No hay usuarios con estos filtros'); return; }
+  document.getElementById('usuarios-table').innerHTML = `<table>
+    <thead><tr><th></th><th>Nombre</th><th>XP</th><th>Pts oficiales</th><th>Tipo</th><th>Estado</th><th>Acciones</th></tr></thead>
+    <tbody>${lista.map(u=>`<tr>
+      <td><div class="avatar">${u.fotoUrl?`<img src="${u.fotoUrl}">`:(u.nombre||'?')[0].toUpperCase()}</div></td>
+      <td style="font-weight:600;color:#e8e8e8">${u.nombre||'—'}</td>
+      <td style="color:#E6B84B;font-weight:700">${(u.puntosPersonales||0).toLocaleString()}</td>
+      <td>${(u.puntosOficiales||0).toLocaleString()}</td>
+      <td><span class="badge ${u.esBot?'warning':'accent'}">${u.esBot?'Bot':'Real'}</span></td>
+      <td><span class="badge ${u.activo===false?'danger':'success'}">${u.activo===false?'Bloqueado':'Activo'}</span></td>
+      <td style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn sm" onclick="abrirModalUsuario('${u.id}')"><i class="ti ti-edit"></i> Editar</button>
+        <button class="btn sm ${u.activo===false?'success':'danger'}" onclick="toggleBloqueo('${u.id}',${u.activo!==false})">${u.activo===false?'Activar':'Bloquear'}</button>
+      </td>
+    </tr>`).join('')}</tbody></table>`;
+}
+function abrirModalUsuario(id) {
+  const u = usuariosCache.find(x=>x.id===id);
+  if (!u) return;
+  editandoUsuarioId = id;
+  document.getElementById('mu-title').textContent = u.nombre || 'Usuario';
+  document.getElementById('mu-sub').textContent = u.uid || u.id || '';
+  document.getElementById('mu-nombre').value = u.nombre || '';
+  document.getElementById('mu-xp').value = u.puntosPersonales || 0;
+  document.getElementById('mu-pts').value = u.puntosOficiales || 0;
+  document.getElementById('mu-rivals').value = u.monedasRivalia ?? 0;
+  document.getElementById('mu-pc').value = u.puntosConquista || 0;
+  document.getElementById('mu-email').value = u.email || '';
+  document.getElementById('mu-error').style.display = 'none';
+  document.getElementById('mu-reset-link').style.display = 'none';
+  document.getElementById('mu-reset-error').style.display = 'none';
+  const bloq = document.getElementById('mu-bloquear');
+  bloq.textContent = u.activo===false ? 'Activar cuenta' : 'Bloquear cuenta';
+  bloq.className = 'btn ' + (u.activo===false ? 'success' : 'danger');
+  const botBtn = document.getElementById('mu-esbot');
+  botBtn.textContent = u.esBot ? 'Quitar bot' : 'Marcar como bot';
+  // reset tabs
+  switchTabUsuario('datos', document.querySelector('#modal-usuario .tab-btn'));
+  document.getElementById('mu-inventario-content').innerHTML = '<button class="btn" onclick="cargarInventarioUsuario()"><i class="ti ti-refresh"></i> Cargar inventario</button>';
+  document.getElementById('modal-usuario').style.display = 'flex';
+}
+function switchTabUsuario(tab, el) {
+  document.querySelectorAll('#modal-usuario .tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#modal-usuario .tab-panel').forEach(p=>p.classList.remove('active'));
+  if(el) el.classList.add('active');
+  document.getElementById('mu-tab-'+tab).classList.add('active');
+}
+let inventarioActual = [];
+let inventarioCampoNombre = 'estandartes'; // campo real en Firestore
+
+async function cargarInventarioUsuario() {
+  const el = document.getElementById('mu-inventario-content');
+  el.innerHTML = '<div class="loading-row"><div class="spinner"></div><span>Cargando...</span></div>';
+  try {
+    const snap = await db.collection('participantes').doc(editandoUsuarioId).get();
+    const data = snap.data() || {};
+    // Intentar varios nombres de campo posibles
+    const estandartes = data.estandartes || data.estandartesDesbloqueados || data.estandartesUnlocked || [];
+    if (data.estandartes !== undefined) inventarioCampoNombre = 'estandartes';
+    else if (data.estandartesDesbloqueados !== undefined) inventarioCampoNombre = 'estandartesDesbloqueados';
+    inventarioActual = [...estandartes];
+    renderInventario();
+  } catch(e) { el.innerHTML=`<div class="error-msg" style="display:block">${e.message}</div>`; }
+}
+function renderInventario() {
+  const el = document.getElementById('mu-inventario-content');
+  if (!inventarioActual.length) {
+    el.innerHTML = '<div style="padding:12px;color:var(--text4);font-size:13px">Sin estandartes. Añade uno arriba.</div>';
+    return;
+  }
+  el.innerHTML = `
+    <div style="font-size:11px;color:var(--text4);margin-bottom:8px">${inventarioActual.length} estandarte(s) · campo: <code style="color:#E6B84B">${inventarioCampoNombre}</code></div>
+    <div class="inv-grid">${inventarioActual.map((e,i)=>`
+      <div class="inv-item" style="display:flex;align-items:center;gap:6px">
+        <span style="flex:1;font-size:10px">${e}</span>
+        <button onclick="eliminarEstandarte(${i})" style="background:none;border:none;color:#D94343;cursor:pointer;font-size:14px;padding:0;line-height:1">✕</button>
+      </div>`).join('')}
+    </div>
+    <button class="btn danger sm" style="margin-top:10px;width:100%" onclick="guardarInventario()"><i class="ti ti-device-floppy"></i> Guardar cambios inventario</button>`;
+}
+async function añadirEstandarte() {
+  const id = document.getElementById('mu-inv-nuevo').value.trim();
+  if (!id) { toast('Escribe el ID del estandarte','error'); return; }
+  if (inventarioActual.length === 0) await cargarInventarioUsuario();
+  if (inventarioActual.includes(id)) { toast('Ya existe en el inventario','error'); return; }
+  inventarioActual.push(id);
+  document.getElementById('mu-inv-nuevo').value = '';
+  renderInventario();
+}
+function eliminarEstandarte(idx) {
+  inventarioActual.splice(idx, 1);
+  renderInventario();
+}
+async function guardarInventario() {
+  try {
+    await db.collection('participantes').doc(editandoUsuarioId).update({ [inventarioCampoNombre]: inventarioActual });
+    toast(`Inventario guardado (${inventarioActual.length} estandartes)`);
+  } catch(e) { toast('Error: '+e.message,'error'); }
+}
+async function resetearPasswordDesdeModal() {
+  const email = document.getElementById('mu-email').value.trim();
+  const errEl = document.getElementById('mu-reset-error');
+  const linkEl = document.getElementById('mu-reset-link');
+  errEl.style.display='none'; linkEl.style.display='none';
+  if (!email) { errEl.textContent='Introduce el email.'; errEl.style.display='block'; return; }
+  try {
+    const result = await callFunction('resetearPassword', { email });
+    if (result.ok && result.link) {
+      linkEl.textContent = '✓ Link generado: ' + result.link;
+      linkEl.style.display='block';
+    } else { errEl.textContent = result.error || 'Error'; errEl.style.display='block'; }
+  } catch(e) { errEl.textContent=e.message; errEl.style.display='block'; }
+}
+async function toggleBotUsuario() {
+  const u = usuariosCache.find(x=>x.id===editandoUsuarioId);
+  if (!u) return;
+  const nuevoValor = !u.esBot;
+  await db.collection('participantes').doc(editandoUsuarioId).update({ esBot: nuevoValor });
+  toast(nuevoValor ? 'Marcado como bot' : 'Bot desactivado', nuevoValor?'info':'success');
+  cerrarModal('modal-usuario');
+  cargarUsuarios();
+}
+async function guardarUsuario() {
+  const nombre = document.getElementById('mu-nombre').value.trim();
+  const xp = parseInt(document.getElementById('mu-xp').value)||0;
+  const pts = parseInt(document.getElementById('mu-pts').value)||0;
+  const rivals = parseInt(document.getElementById('mu-rivals').value)||0;
+  const pc = parseInt(document.getElementById('mu-pc').value)||0;
+  const errEl = document.getElementById('mu-error');
+  try {
+    await db.collection('participantes').doc(editandoUsuarioId).update({
+      nombre, puntosPersonales: xp, puntosOficiales: pts,
+      monedasRivalia: rivals, puntosConquista: pc
+    });
+    toast('Usuario actualizado');
+    cerrarModal('modal-usuario');
+    cargarUsuarios();
+  } catch(e) { errEl.textContent=e.message; errEl.style.display='block'; }
+}
+async function toggleBloqueo(id, activo) {
+  await db.collection('participantes').doc(id).update({ activo: !activo });
+  toast(activo ? 'Usuario bloqueado' : 'Usuario activado', activo?'error':'success');
+  cargarUsuarios();
+}
+async function bloquearUsuario() {
+  const u = usuariosCache.find(x=>x.id===editandoUsuarioId);
+  if (!u) return;
+  await toggleBloqueo(editandoUsuarioId, u.activo!==false);
+  cerrarModal('modal-usuario');
+}
+function exportarUsuariosCSV() {
+  const rows = [['Nombre','XP','Puntos Oficiales','Tipo','Estado']];
+  usuariosCache.forEach(u => rows.push([u.nombre||'',u.puntosPersonales||0,u.puntosOficiales||0,u.esBot?'Bot':'Real',u.activo===false?'Bloqueado':'Activo']));
+  const csv = rows.map(r=>r.join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download = 'rivalia-usuarios.csv';
+  a.click();
+}
+
+// STORIES
+async function cargarStories() {
+  loading('stories-table');
+  try {
+    const hace24h = Date.now()-86400000;
+    const snap = await db.collection('participantes').where('estadoFecha','>',hace24h).get();
+    const stories = snap.docs.map(d=>({id:d.id,...d.data()})).filter(u=>u.estadoFotos?.length||u.estadoTexto||u.estadoVideoUrl);
+    if (!stories.length) { empty('stories-table','timeline','No hay stories activas en las últimas 24h'); return; }
+    document.getElementById('stories-table').innerHTML = `<table>
+      <thead><tr><th></th><th>Usuario</th><th>Texto</th><th>Fotos</th><th>Vídeo</th><th>Likes</th><th>Acciones</th></tr></thead>
+      <tbody>${stories.map(u=>`<tr>
+        <td><div class="avatar">${u.fotoUrl?`<img src="${u.fotoUrl}">`:(u.nombre||'?')[0].toUpperCase()}</div></td>
+        <td style="font-weight:600;color:#e8e8e8">${u.nombre||'—'}</td>
+        <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#888">${u.estadoTexto||'—'}</td>
+        <td>${u.estadoFotos?.length||0}</td>
+        <td>${u.estadoVideoUrl?'<span class="badge accent">Sí</span>':'—'}</td>
+        <td>${Object.values(u.estadoLikes||{}).flat().length}</td>
+        <td><button class="btn sm danger" onclick="eliminarStory('${u.id}')"><i class="ti ti-trash"></i></button></td>
+      </tr>`).join('')}</tbody></table>`;
+  } catch(e) { empty('stories-table','alert-circle','Error: '+e.message); }
+}
+async function eliminarStory(id) {
+  if (!confirm('¿Eliminar esta story?')) return;
+  await db.collection('participantes').doc(id).update({ estadoTexto:'', estadoFotos:[], estadoFecha:0, estadoLikes:{}, estadoVideoUrl:null, estadoVideoThumb:null });
+  toast('Story eliminada');
+  cargarStories();
+}
+
+// EMBLEMÁTICOS
+async function cargarEmblematicos() {
+  document.getElementById('emblematicos-grid').innerHTML = '<div class="loading-row"><div class="spinner"></div></div>';
+  try {
+    const snap = await db.collection('emblematicos').orderBy('nombre').get();
+    emblematicoCache = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderEmblematicos();
+  } catch(e) { document.getElementById('emblematicos-grid').innerHTML=`<div class="empty"><i class="ti ti-alert-circle"></i><p>Error: ${e.message}</p></div>`; }
+}
+function filtrarEmblematicos() { renderEmblematicos(); }
+function renderEmblematicos() {
+  const q = (document.getElementById('embl-search')?.value||'').toLowerCase();
+  const lista = emblematicoCache.filter(l=>!q||(l.nombre||'').toLowerCase().includes(q)||(l.ciudad||'').toLowerCase().includes(q));
+  if (!lista.length) { document.getElementById('emblematicos-grid').innerHTML='<div class="empty"><i class="ti ti-map-pin"></i><p>No hay lugares. Añade el primero.</p></div>'; return; }
+  document.getElementById('emblematicos-grid').innerHTML = lista.map(l=>`
+    <div class="lugar-card">
+      <div class="lugar-foto">
+        ${l.fotoEmblemáticaUrl?`<img src="${l.fotoEmblemáticaUrl}" alt="${l.nombre}">`:`<div class="lugar-foto-placeholder"><i class="ti ti-photo"></i></div>`}
+        <div style="position:absolute;top:6px;right:6px"><span class="badge ${l.activo?'success':'warning'}" style="font-size:9px">${l.activo?'Activo':'Inactivo'}</span></div>
+      </div>
+      <div class="lugar-info">
+        <div class="lugar-nombre">${l.nombre}</div>
+        <div class="lugar-ciudad">${l.ciudad||'—'} · <span style="color:#E6B84B;font-size:10px">${l.tipoCofre||'auto'}</span></div>
+        <div class="lugar-actions-row">
+          <button class="btn sm" onclick="abrirModalLugar('${l.id}')"><i class="ti ti-edit"></i></button>
+          <button class="btn sm" onclick="toggleLugar('${l.id}',${l.activo})">${l.activo?'Desact.':'Activar'}</button>
+          <button class="btn sm danger" onclick="eliminarLugar('${l.id}')"><i class="ti ti-trash"></i></button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+function abrirModalLugar(id=null) {
+  editandoLugarId = id;
+  const l = id ? emblematicoCache.find(x=>x.id===id) : null;
+  document.getElementById('ml-title').textContent = l ? 'Editar lugar' : 'Añadir lugar emblemático';
+  document.getElementById('ml-nombre').value = l?.nombre||'';
+  document.getElementById('ml-ciudad').value = l?.ciudad||'';
+  document.getElementById('ml-lat').value = l?.lat||'';
+  document.getElementById('ml-lng').value = l?.lng||'';
+  document.getElementById('ml-foto').value = l?.fotoEmblemáticaUrl||'';
+  document.getElementById('ml-radio').value = l?.radio||500;
+  document.getElementById('ml-puntos').value = l?.puntosBonificacion||50;
+  document.getElementById('ml-cofre').value = l?.tipoCofre||'';
+  document.getElementById('ml-desc').value = l?.descripcion||'';
+  document.getElementById('ml-foto-preview').innerHTML = l?.fotoEmblemáticaUrl?`<img src="${l.fotoEmblemáticaUrl}" style="width:100%;height:100px;object-fit:cover;border-radius:8px">`:'';
+  document.getElementById('ml-foto-file').value='';
+  document.getElementById('ml-error').style.display='none';
+  document.getElementById('modal-lugar').style.display='flex';
+}
+function previsualizarFoto() {
+  const file = document.getElementById('ml-foto-file').files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => { document.getElementById('ml-foto-preview').innerHTML=`<img src="${e.target.result}" style="width:100%;height:100px;object-fit:cover;border-radius:8px;margin-top:6px">`; };
+  reader.readAsDataURL(file);
+}
+async function guardarLugar() {
+  const nombre = document.getElementById('ml-nombre').value.trim();
+  const ciudad = document.getElementById('ml-ciudad').value.trim();
+  const lat = parseFloat(document.getElementById('ml-lat').value);
+  const lng = parseFloat(document.getElementById('ml-lng').value);
+  const radio = parseInt(document.getElementById('ml-radio').value)||500;
+  const puntos = parseInt(document.getElementById('ml-puntos').value)||50;
+  const desc = document.getElementById('ml-desc').value.trim();
+  const errEl = document.getElementById('ml-error');
+  if (!nombre||!ciudad||isNaN(lat)||isNaN(lng)) { errEl.textContent='Nombre, ciudad, lat y lng son obligatorios.'; errEl.style.display='block'; return; }
+  errEl.style.display='none';
+  const btn = document.getElementById('ml-save');
+  btn.disabled=true; btn.textContent='Guardando...';
+  let fotoUrl = document.getElementById('ml-foto').value.trim();
+  const file = document.getElementById('ml-foto-file').files[0];
+  if (file) {
+    try {
+      const ref = storage.ref(`emblematicos/${Date.now()}_${file.name}`);
+      await ref.put(file);
+      fotoUrl = await ref.getDownloadURL();
+    } catch(e) { errEl.textContent='Error subiendo foto: '+e.message; errEl.style.display='block'; btn.disabled=false; btn.innerHTML='<i class="ti ti-check"></i> Guardar'; return; }
+  }
+  const cofre = document.getElementById('ml-cofre').value;
+  const datos = { nombre, ciudad, lat:String(lat), lng:String(lng), fotoEmblemáticaUrl:fotoUrl, radio, puntosBonificacion:puntos, descripcion:desc, activo:true, updatedAt:firebase.firestore.FieldValue.serverTimestamp(), ...(cofre ? {tipoCofre:cofre} : {}) };
+  try {
+    if (editandoLugarId) await db.collection('emblematicos').doc(editandoLugarId).update(datos);
+    else { datos.createdAt=firebase.firestore.FieldValue.serverTimestamp(); await db.collection('emblematicos').add(datos); }
+    toast(editandoLugarId?'Lugar actualizado':'Lugar creado');
+    cerrarModal('modal-lugar');
+    cargarEmblematicos();
+  } catch(e) { errEl.textContent=e.message; errEl.style.display='block'; }
+  btn.disabled=false; btn.innerHTML='<i class="ti ti-check"></i> Guardar';
+}
+async function toggleLugar(id, activo) {
+  await db.collection('emblematicos').doc(id).update({activo:!activo});
+  toast(activo?'Lugar desactivado':'Lugar activado', activo?'error':'success');
+  cargarEmblematicos();
+}
+async function eliminarLugar(id) {
+  if (!confirm('¿Eliminar este lugar?')) return;
+  await db.collection('emblematicos').doc(id).delete();
+  toast('Lugar eliminado','error');
+  cargarEmblematicos();
+}
+
+// TERRITORIOS
+async function cargarTerritorios() {
+  loading('territorios-table');
+  const btnTodos = document.getElementById('btn-borrar-todos-territorios');
+  if (btnTodos) btnTodos.style.display = 'inline-flex';
+  try {
+    const snap = await db.collection('territoryCells').limit(200).get();
+    const terr = snap.docs.map(d=>({id:d.id,...d.data()}));
+    document.getElementById('terr-total').textContent = terr.length;
+    document.getElementById('terr-owned').textContent = terr.filter(t=>t.ownerId).length;
+    if (!terr.length) { empty('territorios-table','hexagon','No hay territorios'); return; }
+    document.getElementById('territorios-table').innerHTML = `<table>
+      <thead><tr><th>Nombre/ID</th><th>Propietario</th><th>Deporte</th><th>Puntos</th><th>Foto</th><th>Acciones</th></tr></thead>
+      <tbody>${terr.map(t=>`<tr>
+        <td style="font-family:monospace;font-size:11px;color:#666">${t.nombre||t.h3Index||t.id.slice(0,14)}…</td>
+        <td style="font-weight:600;color:${t.ownerNombre?'#e8e8e8':'#333'}">${t.ownerNombre||'Libre'}</td>
+        <td>${t.sport||'—'}</td>
+        <td style="color:#E6B84B;font-weight:700">${t.puntos||0}</td>
+        <td>${t.fotoEmblemática?'<span class="badge success">Sí</span>':'<span class="badge warning">No</span>'}</td>
+        <td><button class="btn sm danger" onclick="resetearTerritorio('${t.id}')">Reset</button></td>
+      </tr>`).join('')}</tbody></table>`;
+  } catch(e) { empty('territorios-table','alert-circle','Error: '+e.message); }
+}
+async function resetearTerritorio(id) {
+  if (!confirm('¿Eliminar este territorio completamente?')) return;
+  await db.collection('territoryCells').doc(id).delete();
+  toast('Territorio eliminado');
+  cargarTerritorios();
+}
+
+async function resetearTodosTerritorios() {
+  if (!confirm('¿Borrar TODOS los territorios? Esta acción no se puede deshacer.')) return;
+  if (!confirm('Segunda confirmación: ¿seguro que quieres borrar TODOS los territorios?')) return;
+  const snap = await db.collection('territoryCells').get();
+  const batch = db.batch();
+  snap.docs.forEach(d => batch.delete(d.ref));
+  await batch.commit();
+  toast('Todos los territorios eliminados');
+  cargarTerritorios();
+}
+
+// PUBLICACIONES
+async function cargarPublicaciones() {
+  loading('pubs-table');
+  try {
+    const snap = await db.collection('publicaciones').orderBy('fecha','desc').limit(100).get();
+    publicacionesCache = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderPublicaciones();
+  } catch(e) { empty('pubs-table','alert-circle','Error: '+e.message); }
+}
+function filtrarPublicaciones() { renderPublicaciones(); }
+function renderPublicaciones() {
+  const q = (document.getElementById('pubs-search')?.value||'').toLowerCase();
+  const lista = publicacionesCache.filter(p=>!q||(p.texto||'').toLowerCase().includes(q)||(p.autor||'').toLowerCase().includes(q));
+  if (!lista.length) { empty('pubs-table','news','Sin publicaciones'); return; }
+  document.getElementById('pubs-table').innerHTML = `<table>
+    <thead><tr><th>Autor</th><th>Texto</th><th>Fecha</th><th>Reacciones</th><th>Comentarios</th><th>Acciones</th></tr></thead>
+    <tbody>${lista.map(p=>`<tr>
+      <td style="font-weight:600;color:#ccc;white-space:nowrap">${p.autor||'—'}</td>
+      <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#888">${p.texto||'—'}</td>
+      <td style="white-space:nowrap;color:#555;font-size:11px">${p.fecha?new Date(p.fecha).toLocaleDateString('es-ES'):''}</td>
+      <td>${p.reacciones?.length||0}</td>
+      <td>${p.comentarios?.length||0}</td>
+      <td style="display:flex;gap:6px">
+        <button class="btn sm" onclick="verPublicacion('${p.id}')"><i class="ti ti-eye"></i></button>
+        <button class="btn sm danger" onclick="eliminarPublicacion('${p.id}')"><i class="ti ti-trash"></i></button>
+      </td>
+    </tr>`).join('')}</tbody></table>`;
+}
+async function eliminarPublicacion(id) {
+  if (!confirm('¿Eliminar esta publicación?')) return;
+  await db.collection('publicaciones').doc(id).delete();
+  toast('Publicación eliminada','error');
+  publicacionesCache = publicacionesCache.filter(p=>p.id!==id);
+  renderPublicaciones();
+}
+
+// EQUIPOS
+async function cargarEquipos() {
+  loading('equipos-table');
+  try {
+    const snap = await db.collection('grupos').get();
+    const equipos = snap.docs.map(d=>({id:d.id,...d.data()}));
+    if (!equipos.length) { empty('equipos-table','shield','No hay equipos'); return; }
+    document.getElementById('equipos-table').innerHTML = `<table>
+      <thead><tr><th>Nombre</th><th>Código</th><th>Miembros</th><th>Acciones</th></tr></thead>
+      <tbody>${equipos.map(g=>`<tr>
+        <td style="font-weight:600;color:#e8e8e8">${g.nombre||'—'}</td>
+        <td style="font-family:monospace;color:#E6B84B">${g.codigo||'—'}</td>
+        <td>${g.miembros?.length||0}</td>
+        <td style="display:flex;gap:6px">
+          <button class="btn sm" onclick="verEquipo('${g.id}')"><i class="ti ti-eye"></i></button>
+          <button class="btn sm danger" onclick="disolverEquipoDirecto('${g.id}','${(g.nombre||'').replace(/'/g,"\\'")}')"><i class="ti ti-trash"></i></button>
+        </td>
+      </tr>`).join('')}</tbody></table>`;
+  } catch(e) { empty('equipos-table','alert-circle','Error: '+e.message); }
+}
+async function verEquipo(id) {
+  editandoEquipoId = id;
+  document.getElementById('modal-equipo').style.display='flex';
+  loading('me-body');
+  try {
+    const snap = await db.collection('grupos').doc(id).get();
+    const g = {id:snap.id,...snap.data()};
+    document.getElementById('me-title').textContent = g.nombre||'Equipo';
+    document.getElementById('me-sub').textContent = `Código: ${g.codigo} · ${g.miembros?.length||0} miembros`;
+    document.getElementById('me-body').innerHTML = `
+      <p style="font-size:13px;color:#aaa;margin-bottom:12px">${g.descripcion||'Sin descripción'}</p>
+      <div style="font-size:10px;color:#444;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">Miembros UIDs</div>
+      ${(g.miembros||[]).map(uid=>`<div style="font-size:11px;color:#555;font-family:monospace;padding:3px 0">${uid}</div>`).join('')}`;
+  } catch(e) { document.getElementById('me-body').innerHTML=`<div class="empty"><i class="ti ti-alert-circle"></i><p>${e.message}</p></div>`; }
+}
+async function disolverEquipo() {
+  if (!editandoEquipoId||!confirm('¿Disolver este equipo?')) return;
+  await db.collection('grupos').doc(editandoEquipoId).delete();
+  toast('Equipo disuelto','error');
+  cerrarModal('modal-equipo');
+  cargarEquipos();
+}
+async function disolverEquipoDirecto(id, nombre) {
+  if (!confirm(`¿Disolver "${nombre}"?`)) return;
+  await db.collection('grupos').doc(id).delete();
+  toast('Equipo disuelto','error');
+  cargarEquipos();
+}
+
+// MARCAS
+async function cargarMarcas() {
+  loading('marcas-table');
+  try {
+    let q = filtroMarcas==='todos'
+      ? db.collection('intentos').orderBy('fecha','desc').limit(50)
+      : db.collection('intentos').where('estado','==',filtroMarcas).orderBy('fecha','desc').limit(50);
+    const snap = await q.get();
+    const lista = snap.docs.map(d=>({id:d.id,...d.data()}));
+    if (!lista.length) { empty('marcas-table','trophy','Sin intentos en esta categoría'); return; }
+    document.getElementById('marcas-table').innerHTML = `<table>
+      <thead><tr><th>Autor</th><th>Récord</th><th>Valor</th><th>Estado</th><th>✓</th><th>✗</th><th>Acciones</th></tr></thead>
+      <tbody>${lista.map(i=>`<tr>
+        <td style="font-weight:600;color:#e8e8e8">${i.autorNombre}</td>
+        <td style="color:#888;font-size:12px">${i.marcaId}</td>
+        <td style="color:#E6B84B;font-weight:700">${i.valor}</td>
+        <td><span class="badge ${i.estado==='aceptado'?'success':i.estado==='rechazado'?'danger':'gold'}">${i.estado}</span></td>
+        <td><span class="badge success">${(i.validaciones||[]).length}</span></td>
+        <td><span class="badge danger">${(i.impugnaciones||[]).length}</span></td>
+        <td style="display:flex;gap:6px">
+          ${i.estado==='pendiente'?`<button class="btn sm success" onclick="resolverIntento('${i.id}','aceptado')">✓</button><button class="btn sm danger" onclick="resolverIntento('${i.id}','rechazado')">✗</button>`:'<span style="color:#333;font-size:11px">Resuelto</span>'}
+        </td>
+      </tr>`).join('')}</tbody></table>`;
+  } catch(e) { empty('marcas-table','alert-circle','Error: '+e.message); }
+}
+function setFiltroMarcas(f, el) {
+  filtroMarcas=f;
+  document.querySelectorAll('#sec-marcas .filter-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  cargarMarcas();
+}
+async function resolverIntento(id, estado) {
+  await db.collection('intentos').doc(id).update({estado});
+  toast(estado==='aceptado'?'Intento aceptado':'Intento rechazado', estado==='aceptado'?'success':'error');
+  if (seccionActual==='marcas') cargarMarcas(); else cargarDashboard();
+}
+
+// MENSAJES Y NOTIFICACIONES
+async function enviarMensajeAdmin() {
+  const nombre = document.getElementById('msg-usuario').value.trim();
+  const texto = document.getElementById('msg-cuerpo').value.trim();
+  const errEl = document.getElementById('msg-error');
+  const sucEl = document.getElementById('msg-success');
+  errEl.style.display='none'; sucEl.style.display='none';
+  if (!nombre||!texto) { errEl.textContent='Rellena el nombre del usuario y el mensaje.'; errEl.style.display='block'; return; }
+  try {
+    // Buscar UID del usuario por nombre
+    const snap = await db.collection('participantes').where('nombre','==',nombre).limit(1).get();
+    if (snap.empty) { errEl.textContent='Usuario no encontrado con ese nombre exacto.'; errEl.style.display='block'; return; }
+    const uid = snap.docs[0].data().uid;
+    const result = await callFunction('mensajeAdmin', { uidDestinatario: uid, texto });
+    if (result.ok) {
+      sucEl.textContent = `Mensaje enviado. Conversación ID: ${result.convId}`;
+      sucEl.style.display='block';
+      document.getElementById('msg-cuerpo').value='';
+      toast('Mensaje enviado a '+nombre);
+    } else {
+      errEl.textContent = result.error || 'Error desconocido';
+      errEl.style.display='block';
+    }
+  } catch(e) { errEl.textContent=e.message; errEl.style.display='block'; }
+}
+
+async function resetearPassword() {
+  const email = document.getElementById('reset-email').value.trim();
+  const errEl = document.getElementById('reset-error');
+  const linkEl = document.getElementById('reset-link');
+  errEl.style.display='none'; linkEl.style.display='none';
+  if (!email) { errEl.textContent='Introduce el email del usuario.'; errEl.style.display='block'; return; }
+  try {
+    const result = await callFunction('resetearPassword', { email });
+    if (result.ok && result.link) {
+      linkEl.textContent = '✓ Link de reseteo generado. Cópialo y envíaselo al usuario: ' + result.link;
+      linkEl.style.display='block';
+      toast('Link generado correctamente');
+    } else {
+      errEl.textContent = result.error || 'Error generando el link';
+      errEl.style.display='block';
+    }
+  } catch(e) { errEl.textContent=e.message; errEl.style.display='block'; }
+}
+
+async function enviarNotifGlobal() {
+  const titulo = document.getElementById('notif-g-titulo').value.trim();
+  const cuerpo = document.getElementById('notif-g-cuerpo').value.trim();
+  const sucEl = document.getElementById('notif-g-success');
+  sucEl.style.display='none';
+  if (!titulo||!cuerpo) { toast('Rellena título y mensaje','error'); return; }
+  if (!confirm(`¿Enviar "${titulo}" a TODOS los usuarios?`)) return;
+  try {
+    const snap = await db.collection('participantes').get();
+    const tokens = snap.docs.map(d=>d.data().expoPushToken).filter(Boolean);
+    toast(`Enviando a ${tokens.length} usuarios...`,'info');
+    const result = await callFunction('notificarGlobal', { tokens, titulo, cuerpo });
+    sucEl.textContent = `✓ Enviado a ${result.enviadas||tokens.length} usuarios`;
+    sucEl.style.display='block';
+    toast('Notificación global enviada');
+  } catch(e) { toast('Error: '+e.message,'error'); }
+}
+
+// REGALOS MASIVOS
+let historialRegalos = [];
+
+function cargarRegalos() {
+  // Mostrar/ocultar textarea de UIDs según selección
+  document.querySelectorAll('input[name="reg-dest"]').forEach(r => {
+    r.addEventListener('change', () => {
+      document.getElementById('reg-uids-wrap').style.display =
+        document.querySelector('input[name="reg-dest"]:checked').value === 'manual' ? 'block' : 'none';
+    });
+  });
+  renderHistorialRegalos();
+}
+
+function renderHistorialRegalos() {
+  const el = document.getElementById('reg-historial');
+  if (!historialRegalos.length) {
+    el.innerHTML = '<div style="color:var(--text4);font-size:13px">Los regalos enviados aparecerán aquí.</div>';
+    return;
+  }
+  el.innerHTML = historialRegalos.map(r => `
+    <div style="padding:10px;background:var(--bg4);border-radius:8px;margin-bottom:8px;border:1px solid var(--border)">
+      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:4px">${r.motivo||'Sin motivo'}</div>
+      <div style="font-size:11px;color:var(--text3)">${r.fecha} · ${r.total} usuarios</div>
+      <div style="font-size:11px;color:var(--text4);margin-top:3px">${r.resumen}</div>
+    </div>`).join('');
+}
+
+async function enviarRegaloMasivo() {
+  const errEl = document.getElementById('reg-error');
+  const okEl = document.getElementById('reg-ok');
+  const btn = document.getElementById('reg-btn');
+  errEl.style.display = 'none'; okEl.style.display = 'none';
+
+  const rivales = parseInt(document.getElementById('reg-rivales').value) || 0;
+  const xp = parseInt(document.getElementById('reg-xp').value) || 0;
+  const pc = parseInt(document.getElementById('reg-pc').value) || 0;
+  const estandarte = document.getElementById('reg-estandarte').value.trim();
+  const borde = document.getElementById('reg-borde').value.trim();
+  const motivo = document.getElementById('reg-motivo').value.trim();
+  const destino = document.querySelector('input[name="reg-dest"]:checked').value;
+
+  if (!rivales && !xp && !pc && !estandarte && !borde) {
+    errEl.textContent = 'Configura al menos una recompensa.'; errEl.style.display = 'block'; return;
+  }
+
+  if (!confirm(`¿Enviar este regalo a ${destino === 'todos' ? 'TODOS los usuarios' : destino === 'activos' ? 'usuarios activos' : 'los UIDs indicados'}?`)) return;
+
+  btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader"></i> Enviando...';
+
+  try {
+    // Obtener participantes
+    let snap;
+    const uidsManual = destino === 'manual'
+      ? document.getElementById('reg-uids').value.split('\n').map(u=>u.trim()).filter(Boolean)
+      : [];
+
+    if (destino === 'manual') {
+      // Buscar por UID manual
+      snap = await db.collection('participantes').get();
+      snap = { docs: snap.docs.filter(d => uidsManual.includes(d.data().uid)) };
+    } else if (destino === 'activos') {
+      const hace30dias = Date.now() - 30 * 24 * 60 * 60 * 1000;
+      snap = await db.collection('participantes').get();
+      snap = { docs: snap.docs.filter(d => (d.data().ultimaActividad||0) > hace30dias || d.data().activo !== false) };
+    } else {
+      snap = await db.collection('participantes').get();
+    }
+
+    const docs = snap.docs;
+    if (!docs.length) { errEl.textContent = 'No hay usuarios para enviar.'; errEl.style.display='block'; btn.disabled=false; btn.innerHTML='<i class="ti ti-gift"></i> Enviar regalo'; return; }
+
+    // Construir updates
+    const updates = {};
+    if (rivales) updates.monedasRivalia = firebase.firestore.FieldValue.increment(rivales);
+    if (xp) updates.puntosPersonales = firebase.firestore.FieldValue.increment(xp);
+    if (pc) updates.puntosConquista = firebase.firestore.FieldValue.increment(pc);
+
+    // Procesar en batches de 500
+    const BATCH_SIZE = 499;
+    let procesados = 0;
+    for (let i = 0; i < docs.length; i += BATCH_SIZE) {
+      const batch = db.batch();
+      const chunk = docs.slice(i, i + BATCH_SIZE);
+      for (const doc of chunk) {
+        const ref = doc.ref;
+        if (Object.keys(updates).length) batch.update(ref, updates);
+        if (estandarte) batch.update(ref, { estandartesDesbloqueados: firebase.firestore.FieldValue.arrayUnion(estandarte) });
+        if (borde) batch.update(ref, { bordeDesbloqueados: firebase.firestore.FieldValue.arrayUnion(borde) });
+      }
+      await batch.commit();
+      procesados += chunk.length;
+      btn.innerHTML = `<i class="ti ti-loader"></i> Enviando... ${procesados}/${docs.length}`;
+    }
+
+    // Guardar en historial local
+    const resumenParts = [];
+    if (rivales) resumenParts.push(`+${rivales} Rival$`);
+    if (xp) resumenParts.push(`+${xp} XP`);
+    if (pc) resumenParts.push(`+${pc} PC`);
+    if (estandarte) resumenParts.push(`Estandarte: ${estandarte}`);
+    if (borde) resumenParts.push(`Borde: ${borde}`);
+
+    historialRegalos.unshift({
+      motivo: motivo || 'Regalo masivo',
+      fecha: new Date().toLocaleString('es-ES'),
+      total: docs.length,
+      resumen: resumenParts.join(' · ')
+    });
+    renderHistorialRegalos();
+
+    okEl.textContent = `✓ Regalo enviado a ${docs.length} usuarios correctamente.`;
+    okEl.style.display = 'block';
+    toast(`Regalo enviado a ${docs.length} usuarios`);
+
+    // Limpiar formulario
+    document.getElementById('reg-rivales').value = '';
+    document.getElementById('reg-xp').value = '';
+    document.getElementById('reg-pc').value = '';
+    document.getElementById('reg-estandarte').value = '';
+    document.getElementById('reg-borde').value = '';
+    document.getElementById('reg-motivo').value = '';
+
+  } catch(e) {
+    errEl.textContent = 'Error: ' + e.message; errEl.style.display = 'block';
+    toast('Error: ' + e.message, 'error');
+  }
+
+  btn.disabled = false; btn.innerHTML = '<i class="ti ti-gift"></i> Enviar regalo';
+}
+
+// PUBLICACIÓN DETALLE / COMENTARIOS
+let publicacionModalId = null;
+async function verPublicacion(id) {
+  publicacionModalId = id;
+  const p = publicacionesCache.find(x=>x.id===id);
+  document.getElementById('mpub-title').textContent = p?.autor || 'Publicación';
+  document.getElementById('mpub-sub').textContent = p?.fecha ? new Date(p.fecha).toLocaleString('es-ES') : '';
+  document.getElementById('mpub-body').innerHTML = '<div class="loading-row"><div class="spinner"></div></div>';
+  document.getElementById('modal-publicacion').style.display = 'flex';
+  try {
+    const snap = await db.collection('publicaciones').doc(id).get();
+    const data = snap.data() || {};
+    const comentarios = data.comentarios || [];
+    const texto = data.texto || '';
+    document.getElementById('mpub-body').innerHTML = `
+      ${texto ? `<div style="font-size:13px;color:var(--text2);margin-bottom:16px;padding:10px;background:var(--bg4);border-radius:8px;line-height:1.5">${texto}</div>` : ''}
+      <div style="font-size:10px;font-weight:700;color:var(--text4);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">Comentarios (${comentarios.length})</div>
+      ${comentarios.length ? comentarios.map((c,idx)=>`
+        <div style="display:flex;gap:10px;align-items:flex-start;padding:8px;border-radius:8px;background:var(--bg4);margin-bottom:6px;border:1px solid var(--border)">
+          <div class="avatar" style="width:28px;height:28px;font-size:11px">${(c.autorNombre||'?')[0].toUpperCase()}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:2px">${c.autorNombre||'—'}</div>
+            <div style="font-size:12px;color:var(--text3);line-height:1.4">${c.texto||''}</div>
+          </div>
+          <button class="btn sm danger" onclick="eliminarComentario('${id}',${idx})" title="Eliminar comentario"><i class="ti ti-trash"></i></button>
+        </div>`).join('') : '<div style="color:var(--text4);font-size:13px;padding:12px 0">Sin comentarios.</div>'}`;
+  } catch(e) { document.getElementById('mpub-body').innerHTML=`<div class="error-msg" style="display:block">${e.message}</div>`; }
+}
+async function eliminarComentario(pubId, idx) {
+  if (!confirm('¿Eliminar este comentario?')) return;
+  const snap = await db.collection('publicaciones').doc(pubId).get();
+  const comentarios = (snap.data()?.comentarios || []).filter((_,i)=>i!==idx);
+  await db.collection('publicaciones').doc(pubId).update({ comentarios });
+  toast('Comentario eliminado','error');
+  verPublicacion(pubId);
+}
+async function eliminarPublicacionDesdeModal() {
+  if (!publicacionModalId) return;
+  await eliminarPublicacion(publicacionModalId);
+  cerrarModal('modal-publicacion');
+}
+
+// EVENTOS
+let eventosCache = [];
+let filtroEventos = 'activo';
+let editandoEventoId = null;
+
+async function cargarEventos() {
+  document.getElementById('eventos-list').innerHTML = '<div class="loading-row"><div class="spinner"></div></div>';
+  try {
+    const snap = await db.collection('eventos').orderBy('fechaInicio','desc').limit(100).get();
+    eventosCache = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderEventos();
+  } catch(e) { document.getElementById('eventos-list').innerHTML=`<div class="empty"><i class="ti ti-alert-circle"></i><p>Error: ${e.message}</p></div>`; }
+}
+function setFiltroEventos(f, el) {
+  filtroEventos = f;
+  document.querySelectorAll('#eventos-filters .filter-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderEventos();
+}
+function getEstadoEvento(ev) {
+  const ahora = Date.now();
+  const inicio = ev.fechaInicio?.toMillis ? ev.fechaInicio.toMillis() : ev.fechaInicio;
+  const fin = ev.fechaFin?.toMillis ? ev.fechaFin.toMillis() : ev.fechaFin;
+  if (!ev.activo) return 'inactivo';
+  if (fin && fin < ahora) return 'expirado';
+  if (inicio && inicio > ahora) return 'proximo';
+  return 'activo';
+}
+function renderEventos() {
+  const ahora = Date.now();
+  let lista = eventosCache.filter(ev => {
+    const estado = getEstadoEvento(ev);
+    if (filtroEventos === 'todos') return true;
+    return estado === filtroEventos;
+  });
+  if (!lista.length) {
+    document.getElementById('eventos-list').innerHTML = '<div class="empty"><i class="ti ti-calendar-off"></i><p>No hay eventos en esta categoría.</p></div>';
+    return;
+  }
+  const badgeEvento = { activo:'success', proximo:'accent', expirado:'warning', inactivo:'danger' };
+  const labelEvento = { activo:'Activo', proximo:'Próximo', expirado:'Expirado', inactivo:'Inactivo' };
+  document.getElementById('eventos-list').innerHTML = lista.map(ev => {
+    const estado = getEstadoEvento(ev);
+    const inicio = ev.fechaInicio?.toDate ? ev.fechaInicio.toDate() : (ev.fechaInicio ? new Date(ev.fechaInicio) : null);
+    const fin = ev.fechaFin?.toDate ? ev.fechaFin.toDate() : (ev.fechaFin ? new Date(ev.fechaFin) : null);
+    const fmtDate = d => d ? d.toLocaleDateString('es-ES',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+    return `<div class="event-card">
+      <div class="event-icon">${ev.icono||'🎉'}</div>
+      <div class="event-info">
+        <div class="event-titulo">${ev.titulo||'Sin título'}</div>
+        <div class="event-desc">${ev.descripcion||'—'}</div>
+        <div class="event-meta">
+          <span class="badge ${badgeEvento[estado]}">${labelEvento[estado]}</span>
+          ${ev.multiplicadorXP&&ev.multiplicadorXP>1?`<span class="badge gold">×${ev.multiplicadorXP} XP</span>`:''}
+          ${ev.multiplicadorMonedas&&ev.multiplicadorMonedas>1?`<span class="badge accent">×${ev.multiplicadorMonedas} Rival$</span>`:''}
+          <span style="font-size:11px;color:var(--text4)">${fmtDate(inicio)} → ${fmtDate(fin)}</span>
+        </div>
+        ${ev.premioExtra?`<div style="font-size:11px;color:var(--text3);margin-top:5px">🏆 ${ev.premioExtra}</div>`:''}
+      </div>
+      <div class="event-actions">
+        <button class="btn sm" onclick="abrirModalEvento('${ev.id}')"><i class="ti ti-edit"></i></button>
+        <button class="btn sm ${ev.activo?'danger':'success'}" onclick="toggleEvento('${ev.id}',${ev.activo})">${ev.activo?'Desact.':'Activar'}</button>
+        <button class="btn sm danger" onclick="eliminarEvento('${ev.id}')"><i class="ti ti-trash"></i></button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function abrirModalEvento(id=null) {
+  editandoEventoId = id;
+  const ev = id ? eventosCache.find(x=>x.id===id) : null;
+  document.getElementById('mev-title').textContent = ev ? 'Editar evento' : 'Nuevo evento';
+  document.getElementById('mev-icono').value = ev?.icono || '🎉';
+  document.getElementById('mev-titulo').value = ev?.titulo || '';
+  document.getElementById('mev-desc').value = ev?.descripcion || '';
+  document.getElementById('mev-multxp').value = ev?.multiplicadorXP || 1;
+  document.getElementById('mev-multmonedas').value = ev?.multiplicadorMonedas || 1;
+  document.getElementById('mev-premio').value = ev?.premioExtra || '';
+  document.getElementById('mev-tipo').value = ev?.tipo || 'xp_boost';
+  document.getElementById('mev-activo').checked = ev ? !!ev.activo : true;
+  document.getElementById('mev-error').style.display = 'none';
+  const toLocal = ts => {
+    if (!ts) return '';
+    const d = ts.toDate ? ts.toDate() : new Date(ts);
+    return new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,16);
+  };
+  document.getElementById('mev-inicio').value = toLocal(ev?.fechaInicio);
+  document.getElementById('mev-fin').value = toLocal(ev?.fechaFin);
+  document.getElementById('modal-evento').style.display = 'flex';
+}
+async function guardarEvento() {
+  const titulo = document.getElementById('mev-titulo').value.trim();
+  const desc = document.getElementById('mev-desc').value.trim();
+  const inicio = document.getElementById('mev-inicio').value;
+  const fin = document.getElementById('mev-fin').value;
+  const errEl = document.getElementById('mev-error');
+  if (!titulo || !inicio || !fin) { errEl.textContent='Título, inicio y fin son obligatorios.'; errEl.style.display='block'; return; }
+  if (new Date(inicio) >= new Date(fin)) { errEl.textContent='La fecha de fin debe ser posterior al inicio.'; errEl.style.display='block'; return; }
+  errEl.style.display = 'none';
+  const btn = document.getElementById('mev-save');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+  const datos = {
+    titulo,
+    descripcion: desc,
+    icono: document.getElementById('mev-icono').value || '🎉',
+    tipo: document.getElementById('mev-tipo').value,
+    fechaInicio: firebase.firestore.Timestamp.fromDate(new Date(inicio)),
+    fechaFin: firebase.firestore.Timestamp.fromDate(new Date(fin)),
+    multiplicadorXP: parseFloat(document.getElementById('mev-multxp').value) || 1,
+    multiplicadorMonedas: parseFloat(document.getElementById('mev-multmonedas').value) || 1,
+    premioExtra: document.getElementById('mev-premio').value.trim(),
+    activo: document.getElementById('mev-activo').checked,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+  };
+  try {
+    if (editandoEventoId) {
+      await db.collection('eventos').doc(editandoEventoId).update(datos);
+      toast('Evento actualizado');
+    } else {
+      datos.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+      await db.collection('eventos').add(datos);
+      toast('Evento creado');
+    }
+    cerrarModal('modal-evento');
+    cargarEventos();
+  } catch(e) { errEl.textContent=e.message; errEl.style.display='block'; }
+  btn.disabled = false; btn.innerHTML = '<i class="ti ti-check"></i> Guardar evento';
+}
+async function toggleEvento(id, activo) {
+  await db.collection('eventos').doc(id).update({ activo: !activo });
+  toast(activo ? 'Evento desactivado' : 'Evento activado', activo?'error':'success');
+  cargarEventos();
+}
+async function eliminarEvento(id) {
+  if (!confirm('¿Eliminar este evento?')) return;
+  await db.collection('eventos').doc(id).delete();
+  toast('Evento eliminado','error');
+  cargarEventos();
+}
+
+// CONFIGURACIÓN
+async function cargarConfiguracion() {
+  try {
+    const snap = await db.collection('config').doc('general').get();
+    if (!snap.exists) return;
+    const data = snap.data();
+    if (data.rewardedVideo) {
+      document.getElementById('cfg-rivals-video').value = data.rewardedVideo.rivalsPorVideo ?? 30;
+      document.getElementById('cfg-limite-diario').value = data.rewardedVideo.limiteDiario ?? 3;
+    }
+    if (data.cofres) {
+      ['madera','plata','oro','diamante','obsidiana'].forEach(tipo => {
+        if (data.cofres[tipo]?.precio !== undefined)
+          document.getElementById('cfg-cofre-'+tipo).value = data.cofres[tipo].precio;
+      });
+    }
+  } catch(e) { /* config no existe todavía, no es error */ }
+}
+async function guardarConfigVideo() {
+  const rivals = parseInt(document.getElementById('cfg-rivals-video').value) || 30;
+  const limite = parseInt(document.getElementById('cfg-limite-diario').value) || 3;
+  try {
+    await db.collection('config').doc('general').set({
+      rewardedVideo: { rivalsPorVideo: rivals, limiteDiario: limite },
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    const ok = document.getElementById('cfg-video-ok');
+    ok.textContent = `✓ Guardado: ${rivals} Rival$/vídeo · límite ${limite}/día`;
+    ok.style.display = 'block';
+    setTimeout(()=>ok.style.display='none', 4000);
+    toast('Config vídeos guardada');
+  } catch(e) { toast('Error: '+e.message,'error'); }
+}
+async function guardarConfigCofres() {
+  const tipos = ['madera','plata','oro','diamante','obsidiana'];
+  const cofres = {};
+  tipos.forEach(t => {
+    const val = parseInt(document.getElementById('cfg-cofre-'+t).value);
+    if (val > 0) cofres[t] = { precio: val };
+  });
+  try {
+    await db.collection('config').doc('general').set({
+      cofres,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    const ok = document.getElementById('cfg-cofres-ok');
+    ok.textContent = '✓ Precios guardados en config/general';
+    ok.style.display = 'block';
+    setTimeout(()=>ok.style.display='none', 4000);
+    toast('Precios cofres guardados');
+  } catch(e) { toast('Error: '+e.message,'error'); }
+}
+
+// STATS
+async function cargarStats() {
+  try {
+    const [pubs,gps,duelos,retos,parts,terr,marcas,intentos] = await Promise.all([
+      db.collection('publicaciones').limit(1000).get(),
+      db.collection('actividadesGPS').limit(1000).get(),
+      db.collection('duelos').limit(1000).get(),
+      db.collection('retos').limit(1000).get(),
+      db.collection('participantes').get(),
+      db.collection('territoryCells').get(),
+      db.collection('marcas').get(),
+      db.collection('intentos').get(),
+    ]);
+    document.getElementById('s-pubs').textContent=pubs.size;
+    document.getElementById('s-gps').textContent=gps.size;
+    document.getElementById('s-duelos').textContent=duelos.size;
+    document.getElementById('s-retos').textContent=retos.size;
+    document.getElementById('s-parts').textContent=parts.size;
+    document.getElementById('s-terr').textContent=terr.size;
+    document.getElementById('s-marcas').textContent=marcas.size;
+    document.getElementById('s-intentos').textContent=intentos.size;
+    const top = parts.docs.map(d=>({...d.data(),id:d.id})).sort((a,b)=>(b.puntosPersonales||0)-(a.puntosPersonales||0)).slice(0,10);
+    document.getElementById('s-ranking').innerHTML = top.map((u,i)=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #111">
+        <span style="color:${i<3?'#E6B84B':'#333'};font-weight:700;width:20px;font-size:13px">${i+1}</span>
+        <div class="avatar">${u.fotoUrl?`<img src="${u.fotoUrl}">`:(u.nombre||'?')[0].toUpperCase()}</div>
+        <span style="flex:1;font-size:13px;color:#ccc">${u.nombre||'—'}</span>
+        <span class="badge gold">${(u.puntosPersonales||0).toLocaleString()} XP</span>
+        <span class="badge accent">${(u.puntosOficiales||0).toLocaleString()} pts</span>
+      </div>`).join('');
+  } catch(e) { toast('Error cargando stats','error'); }
+}
+</script>
+</body>
+</html>
