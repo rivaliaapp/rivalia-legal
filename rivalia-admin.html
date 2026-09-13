@@ -374,7 +374,73 @@ tr:hover td { background: var(--table-hover); }
         </div>
 
         <!-- PUBLICACIONES -->
-        <div class="section" id="sec-publicaciones">
+                <div class="section" id="sec-publicaciones">
+          <!-- PUBLICAR COMO PERFIL OFICIAL -->
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-header"><span class="card-title"><i class="ti ti-speakerphone" style="color:#E6B84B"></i> Publicar como perfil oficial</span></div>
+            <div class="card-body">
+              <div class="form-row">
+                <div class="form-label">Perfil</div>
+                <select class="form-input" id="oficial-perfil">
+                  <option value="rivalia">⚔️ RIVALIA (general)</option>
+                  <optgroup label="Deportes">
+                    <option value="rivalia_correr">🏃 Rivalia Correr</option>
+                    <option value="rivalia_senderismo">🥾 Rivalia Senderismo</option>
+                    <option value="rivalia_trail">🌲 Rivalia Trail</option>
+                    <option value="rivalia_ciclismo">🚴 Rivalia Ciclismo</option>
+                    <option value="rivalia_mtb">🚵 Rivalia MTB</option>
+                    <option value="rivalia_pesas">🏋️ Rivalia Pesas</option>
+                    <option value="rivalia_crossfit">🏋️ Rivalia CrossFit</option>
+                    <option value="rivalia_calistenia">💪 Rivalia Calistenia</option>
+                    <option value="rivalia_hiit">🔥 Rivalia HIIT</option>
+                    <option value="rivalia_powerlifting">🏋️ Rivalia Powerlifting</option>
+                    <option value="rivalia_natacion">🏊 Rivalia Natación</option>
+                    <option value="rivalia_padel">🏸 Rivalia Pádel</option>
+                    <option value="rivalia_tenis">🎾 Rivalia Tenis</option>
+                    <option value="rivalia_badminton">🏸 Rivalia Bádminton</option>
+                    <option value="rivalia_ping_pong">🏓 Rivalia Ping Pong</option>
+                    <option value="rivalia_squash">🎾 Rivalia Squash</option>
+                    <option value="rivalia_futbol">⚽ Rivalia Fútbol</option>
+                    <option value="rivalia_baloncesto">🏀 Rivalia Baloncesto</option>
+                    <option value="rivalia_balonmano">🤾 Rivalia Balonmano</option>
+                    <option value="rivalia_voleibol">🏐 Rivalia Voleibol</option>
+                    <option value="rivalia_rugby">🏉 Rivalia Rugby</option>
+                    <option value="rivalia_boxeo">🥊 Rivalia Boxeo</option>
+                    <option value="rivalia_kickboxing">🥊 Rivalia Kickboxing</option>
+                    <option value="rivalia_artes_marciales">🥋 Rivalia Artes Marciales</option>
+                    <option value="rivalia_escalada">🧗 Rivalia Escalada</option>
+                    <option value="rivalia_golf">⛳ Rivalia Golf</option>
+                    <option value="rivalia_surf">🏄 Rivalia Surf</option>
+                    <option value="rivalia_esqui">⛷️ Rivalia Esquí</option>
+                    <option value="rivalia_patinaje">⛸️ Rivalia Patinaje</option>
+                    <option value="rivalia_pilates">🧘 Rivalia Pilates</option>
+                    <option value="rivalia_yoga">🧘 Rivalia Yoga</option>
+                    <option value="rivalia_caminar">🚶 Rivalia Caminar</option>
+                    <option value="rivalia_remo">🚣 Rivalia Remo</option>
+                    <option value="rivalia_handbike">🦽 Rivalia Handbike</option>
+                    <option value="rivalia_canicross">🐕 Rivalia Canicross</option>
+                    <option value="rivalia_bikejoring">🐕 Rivalia Bikejoring</option>
+                    <option value="rivalia_disc_dog">🥏 Rivalia Disc Dog</option>
+                    <option value="rivalia_dogtrekking">🐕 Rivalia Dogtrekking</option>
+                  </optgroup>
+                </select>
+              </div>
+              <div class="form-row">
+                <div class="form-label">Texto</div>
+                <textarea class="form-input" id="oficial-texto" placeholder="Escribe el mensaje de la publicación..." rows="4" style="resize:vertical"></textarea>
+              </div>
+              <div class="form-row">
+                <div class="form-label">URL de foto (opcional)</div>
+                <input class="form-input" id="oficial-foto" placeholder="https://...">
+              </div>
+              <div class="error-msg" id="oficial-error"></div>
+              <div class="success-msg" id="oficial-success"></div>
+              <button class="btn primary" onclick="publicarOficial()" style="width:100%;margin-top:4px">
+                <i class="ti ti-send"></i> Publicar en el muro
+              </button>
+            </div>
+          </div>
+          <!-- MODERACIÓN -->
           <div class="search-bar">
             <i class="ti ti-search"></i>
             <input id="pubs-search" placeholder="Buscar en publicaciones..." oninput="filtrarPublicaciones()">
@@ -1297,6 +1363,33 @@ async function resetearTodosTerritorios() {
 }
 
 // PUBLICACIONES
+async function publicarOficial() {
+  const perfilId = document.getElementById('oficial-perfil').value;
+  const texto = document.getElementById('oficial-texto').value.trim();
+  const fotoUrl = document.getElementById('oficial-foto').value.trim();
+  const errEl = document.getElementById('oficial-error');
+  const okEl = document.getElementById('oficial-success');
+  errEl.style.display = 'none';
+  okEl.style.display = 'none';
+  if (!texto) { errEl.textContent = 'El texto no puede estar vacío'; errEl.style.display = 'block'; return; }
+  try {
+    const result = await callFunction('publicarOficial', { perfilId, texto, fotoUrl: fotoUrl || null, grupo: 'global' });
+    if (result.ok) {
+      okEl.textContent = '✓ Publicado correctamente';
+      okEl.style.display = 'block';
+      document.getElementById('oficial-texto').value = '';
+      document.getElementById('oficial-foto').value = '';
+      setTimeout(() => { okEl.style.display = 'none'; }, 3000);
+    } else {
+      errEl.textContent = result.error || 'Error al publicar';
+      errEl.style.display = 'block';
+    }
+  } catch(e) {
+    errEl.textContent = 'Error de conexión';
+    errEl.style.display = 'block';
+  }
+}
+
 async function cargarPublicaciones() {
   loading('pubs-table');
   try {
