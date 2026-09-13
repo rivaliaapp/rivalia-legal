@@ -429,9 +429,17 @@ tr:hover td { background: var(--table-hover); }
                 <div class="form-label">Texto</div>
                 <textarea class="form-input" id="oficial-texto" placeholder="Escribe el mensaje de la publicación..." rows="4" style="resize:vertical"></textarea>
               </div>
-              <div class="form-row">
-                <div class="form-label">URL de foto (opcional)</div>
-                <input class="form-input" id="oficial-foto" placeholder="https://...">
+                            <div class="form-row">
+                <div class="form-label">Foto (opcional)</div>
+                <input type="file" id="oficial-foto-file" accept="image/*" onchange="previsualizarOficial()" style="display:none">
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                  <button class="btn" onclick="document.getElementById('oficial-foto-file').click()" type="button">
+                    <i class="ti ti-photo"></i> Seleccionar foto
+                  </button>
+                  <span id="oficial-foto-nombre" style="font-size:12px;color:#777"></span>
+                </div>
+                <img id="oficial-foto-preview" src="" style="display:none;margin-top:8px;max-width:200px;max-height:150px;border-radius:8px;border:1px solid #222">
+                <input type="hidden" id="oficial-foto-url">
               </div>
               <div class="error-msg" id="oficial-error"></div>
               <div class="success-msg" id="oficial-success"></div>
@@ -1363,29 +1371,50 @@ async function resetearTodosTerritorios() {
 }
 
 // PUBLICACIONES
+async function previsualizarOficial() {
+  const file = document.getElementById('oficial-foto-file').files[0];
+  if (!file) return;
+  document.getElementById('oficial-foto-nombre').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('oficial-foto-preview');
+    img.src = e.target.result;
+    img.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
 async function publicarOficial() {
   const perfilId = document.getElementById('oficial-perfil').value;
   const texto = document.getElementById('oficial-texto').value.trim();
-  const fotoUrl = document.getElementById('oficial-foto').value.trim();
+  const file = document.getElementById('oficial-foto-file').files[0];
   const errEl = document.getElementById('oficial-error');
   const okEl = document.getElementById('oficial-success');
   errEl.style.display = 'none';
   okEl.style.display = 'none';
   if (!texto) { errEl.textContent = 'El texto no puede estar vacío'; errEl.style.display = 'block'; return; }
-  try {
-    const result = await callFunction('publicarOficial', { perfilId, texto, fotoUrl: fotoUrl || null, grupo: 'global' });
+    try {
+    let fotoUrl = null;
+    if (file) {
+      const storageRef = storage.ref(`publicaciones_oficiales/${Date.now()}_${file.name}`);
+      await storageRef.put(file);
+      fotoUrl = await storageRef.getDownloadURL();
+    }
+    const result = await callFunction('publicarOficial', { perfilId, texto, fotoUrl, grupo: 'global' });
     if (result.ok) {
       okEl.textContent = '✓ Publicado correctamente';
       okEl.style.display = 'block';
       document.getElementById('oficial-texto').value = '';
-      document.getElementById('oficial-foto').value = '';
+      document.getElementById('oficial-foto-file').value = '';
+      document.getElementById('oficial-foto-nombre').textContent = '';
+      document.getElementById('oficial-foto-preview').style.display = 'none';
       setTimeout(() => { okEl.style.display = 'none'; }, 3000);
     } else {
       errEl.textContent = result.error || 'Error al publicar';
       errEl.style.display = 'block';
     }
   } catch(e) {
-    errEl.textContent = 'Error de conexión';
+    errEl.textContent = 'Error al subir foto o publicar';
     errEl.style.display = 'block';
   }
 }
