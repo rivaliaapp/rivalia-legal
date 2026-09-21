@@ -2138,5 +2138,27 @@ document.getElementById('mev-ruta').addEventListener('change', function() {
   document.getElementById('mev-ruta-json-wrap').style.display = this.value === 'personalizada' ? 'block' : 'none';
 });
 </script>
+async function subirImagenEvento() {
+  const file = document.getElementById('mev-imagen-file').files[0];
+  if (!file) return;
+  const progress = document.getElementById('mev-imagen-progress');
+  const preview = document.getElementById('mev-imagen-preview');
+  const img = document.getElementById('mev-imagen-img');
+  const input = document.getElementById('mev-imagen');
+  progress.style.display = 'block';
+  try {
+    const storageRef = storage.ref(`eventos/${Date.now()}_${file.name}`);
+    await storageRef.put(file);
+    const url = await storageRef.getDownloadURL();
+    input.value = url;
+    img.src = url;
+    preview.style.display = 'block';
+    progress.style.display = 'none';
+    toast('Imagen subida correctamente', 'success');
+  } catch(e) {
+    progress.style.display = 'none';
+    toast('Error al subir la imagen', 'error');
+  }
+}
 </body>
 </html>
