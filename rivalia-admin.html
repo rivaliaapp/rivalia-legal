@@ -749,7 +749,20 @@ tr:hover td { background: var(--table-hover); }
           </div>
         </div>
         <div class="form-row"><div class="form-label">Descripción</div><textarea class="form-input" id="mev-desc" rows="2" placeholder="Suma kilómetros con la comunidad..." style="resize:vertical"></textarea></div>
-        <div class="form-row"><div class="form-label">URL imagen de fondo</div><input class="form-input" id="mev-imagen" placeholder="https://firebasestorage..."></div>
+                <div class="form-row">
+          <div class="form-label">Imagen de fondo (1200×600 px recomendado)</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input class="form-input" id="mev-imagen" placeholder="https://firebasestorage..." style="flex:1">
+            <label class="btn" style="cursor:pointer;white-space:nowrap;flex-shrink:0">
+              <i class="ti ti-upload"></i> Subir
+              <input type="file" id="mev-imagen-file" accept="image/*" style="display:none" onchange="subirImagenEvento()">
+            </label>
+          </div>
+          <div id="mev-imagen-preview" style="margin-top:8px;display:none">
+            <img id="mev-imagen-img" style="width:100%;height:120px;object-fit:cover;border-radius:8px;border:1px solid var(--border)">
+          </div>
+          <div id="mev-imagen-progress" style="font-size:11px;color:#E6B84B;margin-top:4px;display:none">Subiendo...</div>
+        </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
           <div class="form-row"><div class="form-label">Inicio *</div><input class="form-input" id="mev-inicio" type="datetime-local"></div>
           <div class="form-row"><div class="form-label">Fin *</div><input class="form-input" id="mev-fin" type="datetime-local"></div>
