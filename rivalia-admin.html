@@ -1963,6 +1963,11 @@ async function guardarEvento() {
   errEl.style.display = 'none';
   const btn = document.getElementById('mev-save');
   btn.disabled = true; btn.textContent = 'Guardando...';
+    const rutaJson = document.getElementById('mev-ruta-json')?.value.trim();
+  let rutaSimulada = document.getElementById('mev-ruta')?.value || '';
+  let hitosArray = [];
+  try { hitosArray = JSON.parse(document.getElementById('mev-hitos')?.value || '[]'); } catch(e) {}
+
   const datos = {
     titulo,
     descripcion: desc,
@@ -1970,9 +1975,25 @@ async function guardarEvento() {
     tipo: document.getElementById('mev-tipo').value,
     fechaInicio: firebase.firestore.Timestamp.fromDate(new Date(inicio)),
     fechaFin: firebase.firestore.Timestamp.fromDate(new Date(fin)),
+    fin: new Date(fin).getTime(),
+    inicio: new Date(inicio).getTime(),
     multiplicadorXP: parseFloat(document.getElementById('mev-multxp').value) || 1,
     multiplicadorMonedas: parseFloat(document.getElementById('mev-multmonedas').value) || 1,
     premioExtra: document.getElementById('mev-premio').value.trim(),
+    imagen: document.getElementById('mev-imagen')?.value.trim() || '',
+    metrica: document.getElementById('mev-metrica')?.value || 'distanciaM',
+    objetivo: parseInt(document.getElementById('mev-objetivo')?.value) || 0,
+    deporte: document.getElementById('mev-deporte')?.value || '',
+    rutaSimulada,
+    rutaPersonalizada: rutaJson ? JSON.parse(rutaJson) : [],
+    hitos: hitosArray,
+    premio: document.getElementById('mev-premio').value.trim(),
+    insigniaId: document.getElementById('mev-insignia-id')?.value.trim() || '',
+    insigniaUrl: document.getElementById('mev-insignia-url')?.value.trim() || '',
+    rewardRivales: parseInt(document.getElementById('mev-reward-rivales')?.value) || 0,
+    rewardXp: parseInt(document.getElementById('mev-reward-xp')?.value) || 0,
+    progreso: 0,
+    participantesCount: 0,
     activo: document.getElementById('mev-activo').checked,
     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
   };
