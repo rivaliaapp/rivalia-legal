@@ -2137,9 +2137,7 @@ function toggleTipoEvento() {
 document.getElementById('mev-ruta').addEventListener('change', function() {
   document.getElementById('mev-ruta-json-wrap').style.display = this.value === 'personalizada' ? 'block' : 'none';
 });
-</script>
-async function subirImagenEvento() {
-  const file = document.getElementById('mev-imagen-file').files[0];
+async function subirImagenEvento() {  const file = document.getElementById('mev-imagen-file').files[0];
   if (!file) return;
   const progress = document.getElementById('mev-imagen-progress');
   const preview = document.getElementById('mev-imagen-preview');
@@ -2158,7 +2156,8 @@ async function subirImagenEvento() {
   } catch(e) {
     progress.style.display = 'none';
     toast('Error al subir la imagen', 'error');
-  }
+   }
 }
+</script>
 </body>
 </html>
