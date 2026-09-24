@@ -820,20 +820,18 @@ tr:hover td { background: var(--table-hover); }
               <option value="Kayak">🛶 Kayak</option>
             </select>
           </div>
-          <div class="form-row">
-            <div class="form-label">Ruta simulada</div>
-            <select class="form-input" id="mev-ruta">
-              <option value="">Sin ruta en mapa</option>
-              <option value="camino_santiago">Camino de Santiago (780 km)</option>
-              <option value="ruta66">Ruta 66 (3.940 km)</option>
-              <option value="everest">Everest (8.849 m desnivel)</option>
-              <option value="personalizada">Personalizada (JSON)</option>
-            </select>
+                    <div class="form-row">
+            <div class="form-label">Ruta del recorrido (archivo JSON)</div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input class="form-input" id="mev-ruta-url" placeholder="URL del JSON (se rellena al subir)" style="flex:1;font-size:11px" readonly>
+              <label class="btn" style="cursor:pointer;white-space:nowrap;flex-shrink:0">
+                <i class="ti ti-upload"></i> Subir JSON
+                <input type="file" id="mev-ruta-file" accept=".json" style="display:none" onchange="subirRutaEvento()">
+              </label>
+            </div>
+            <div id="mev-ruta-progress" style="font-size:11px;color:#E6B84B;margin-top:4px;display:none">Subiendo ruta...</div>
+            <div id="mev-ruta-info" style="font-size:11px;color:#52B788;margin-top:4px;display:none"></div>
           </div>
-        </div>
-        <div class="form-row" id="mev-ruta-json-wrap" style="display:none">
-          <div class="form-label">Ruta personalizada (JSON array)</div>
-          <textarea class="form-input" id="mev-ruta-json" rows="3" placeholder='[{"lat":43.0,"lng":-1.32},...]' style="resize:vertical;font-family:monospace;font-size:11px"></textarea>
         </div>
         <div class="form-row">
           <div class="form-label">Hitos intermedios (JSON)</div>
@@ -1977,7 +1975,12 @@ async function guardarEvento() {
   const btn = document.getElementById('mev-save');
   btn.disabled = true; btn.textContent = 'Guardando...';
     const rutaJson = document.getElementById('mev-ruta-json')?.value.trim();
-  let rutaSimulada = document.getElementById('mev-ruta')?.value || '';
+  const RUTAS_PREDEFINIDAS = {
+    camino_santiago: [{"lat":42.880858,"lng":-8.545477},{"lat":42.885256,"lng":-8.53348},{"lat":42.886828,"lng":-8.50508},{"lat":42.890132,"lng":-8.456595},{"lat":42.897078,"lng":-8.44752},{"lat":42.900434,"lng":-8.446641},{"lat":42.912915,"lng":-8.423201},{"lat":42.908377,"lng":-8.414763},{"lat":42.905947,"lng":-8.393411},{"lat":42.90486,"lng":-8.386103},{"lat":42.908475,"lng":-8.365714},{"lat":42.912383,"lng":-8.357206},{"lat":42.91534,"lng":-8.323421},{"lat":42.924127,"lng":-8.290263},{"lat":42.917712,"lng":-8.241521},{"lat":42.926165,"lng":-8.190164},{"lat":42.92729,"lng":-8.17387},{"lat":42.930011,"lng":-8.151944},{"lat":42.927085,"lng":-8.112638},{"lat":42.924032,"lng":-8.094832},{"lat":42.915502,"lng":-8.073437},{"lat":42.915388,"lng":-8.059842},{"lat":42.911134,"lng":-8.024448},{"lat":42.910272,"lng":-8.012682},{"lat":42.909193,"lng":-7.999567},{"lat":42.881521,"lng":-7.952933},{"lat":42.870253,"lng":-7.889464},{"lat":42.874153,"lng":-7.873031},{"lat":42.875766,"lng":-7.831976},{"lat":42.873788,"lng":-7.805948},{"lat":42.865457,"lng":-7.78735},{"lat":42.849676,"lng":-7.760535},{"lat":42.841979,"lng":-7.73372},{"lat":42.835236,"lng":-7.71563},{"lat":42.811703,"lng":-7.646234},{"lat":42.807559,"lng":-7.633545},{"lat":42.806411,"lng":-7.616879},{"lat":42.796096,"lng":-7.609182},{"lat":42.782851,"lng":-7.555429},{"lat":42.783653,"lng":-7.527437},{"lat":42.78146,"lng":-7.520712},{"lat":42.780952,"lng":-7.495622},{"lat":42.772732,"lng":-7.479462},{"lat":42.770232,"lng":-7.466517},{"lat":42.769539,"lng":-7.455807},{"lat":42.770895,"lng":-7.443277},{"lat":42.778403,"lng":-7.423838},{"lat":42.77654,"lng":-7.384953},{"lat":42.767217,"lng":-7.349266},{"lat":42.761275,"lng":-7.353959},{"lat":42.751742,"lng":-7.356567},{"lat":42.74796,"lng":-7.358777},{"lat":42.736751,"lng":-7.346468},{"lat":42.729159,"lng":-7.347176},{"lat":42.725879,"lng":-7.336634},{"lat":42.730323,"lng":-7.324577},{"lat":42.737136,"lng":-7.314255},{"lat":42.742601,"lng":-7.306761},{"lat":42.74259,"lng":-7.286294},{"lat":42.745398,"lng":-7.270627},{"lat":42.749388,"lng":-7.264428},{"lat":42.7525,"lng":-7.24411},{"lat":42.755549,"lng":-7.22908},{"lat":42.742495,"lng":-7.204633},{"lat":42.74028,"lng":-7.191832},{"lat":42.744293,"lng":-7.178546},{"lat":42.732752,"lng":-7.159381},{"lat":42.709607,"lng":-7.117752},{"lat":42.705988,"lng":-7.108228},{"lat":42.69971,"lng":-7.090568},{"lat":42.702041,"lng":-7.070281},{"lat":42.700472,"lng":-7.057711},{"lat":42.705788,"lng":-7.026348},{"lat":42.676352,"lng":-6.999821},{"lat":42.672954,"lng":-6.967104},{"lat":42.665873,"lng":-6.926871},{"lat":42.657735,"lng":-6.913428},{"lat":42.655642,"lng":-6.905122},{"lat":42.649732,"lng":-6.887619},{"lat":42.637969,"lng":-6.863086},{"lat":42.626956,"lng":-6.846405},{"lat":42.623109,"lng":-6.830307},{"lat":42.611622,"lng":-6.820454},{"lat":42.604254,"lng":-6.809458},{"lat":42.602428,"lng":-6.787617},{"lat":42.606205,"lng":-6.754359},{"lat":42.5994,"lng":-6.716126},{"lat":42.581078,"lng":-6.672026},{"lat":42.543146,"lng":-6.593081},{"lat":42.538359,"lng":-6.589581},{"lat":42.539111,"lng":-6.561995},{"lat":42.545556,"lng":-6.536267},{"lat":42.535065,"lng":-6.510899},{"lat":42.52832,"lng":-6.494231},{"lat":42.513014,"lng":-6.472025},{"lat":42.495395,"lng":-6.443005},{"lat":42.49186,"lng":-6.43191},{"lat":42.489603,"lng":-6.407087},{"lat":42.487579,"lng":-6.380779},{"lat":42.488734,"lng":-6.361674},{"lat":42.489844,"lng":-6.351028},{"lat":42.489683,"lng":-6.330476},{"lat":42.486178,"lng":-6.310655},{"lat":42.464078,"lng":-6.223757},{"lat":42.454929,"lng":-6.1315},{"lat":42.457398,"lng":-6.057136},{"lat":42.455798,"lng":-6.046599},{"lat":42.448172,"lng":-5.980538},{"lat":42.462993,"lng":-5.887993},{"lat":42.514901,"lng":-5.769558},{"lat":42.571473,"lng":-5.674657},{"lat":42.570244,"lng":-5.658472},{"lat":42.596166,"lng":-5.608376},{"lat":42.598856,"lng":-5.567234},{"lat":42.587303,"lng":-5.560877},{"lat":42.581715,"lng":-5.534956},{"lat":42.56768,"lng":-5.497177},{"lat":42.543211,"lng":-5.45062},{"lat":42.535182,"lng":-5.448476},{"lat":42.508527,"lng":-5.431804},{"lat":42.501494,"lng":-5.420513},{"lat":42.468161,"lng":-5.331226},{"lat":42.465274,"lng":-5.318707},{"lat":42.447914,"lng":-5.267955},{"lat":42.387793,"lng":-5.145104},{"lat":42.384741,"lng":-5.111231},{"lat":42.368756,"lng":-5.035988},{"lat":42.370571,"lng":-4.999618},{"lat":42.364234,"lng":-4.949043},{"lat":42.358768,"lng":-4.93081},{"lat":42.35916,"lng":-4.909705},{"lat":42.362306,"lng":-4.866453},{"lat":42.348389,"lng":-4.861441},{"lat":42.329653,"lng":-4.812758},{"lat":42.344676,"lng":-4.659104},{"lat":42.337391,"lng":-4.603136},{"lat":42.322445,"lng":-4.56664},{"lat":42.297738,"lng":-4.499243},{"lat":42.2687,"lng":-4.450776},{"lat":42.266264,"lng":-4.401717},{"lat":42.263089,"lng":-4.388848},{"lat":42.259327,"lng":-4.358615},{"lat":42.259975,"lng":-4.348189},{"lat":42.278509,"lng":-4.297114},{"lat":42.277501,"lng":-4.24771},{"lat":42.281171,"lng":-4.227244},{"lat":42.285961,"lng":-4.188052},{"lat":42.288122,"lng":-4.1413},{"lat":42.292427,"lng":-4.131627},{"lat":42.307933,"lng":-4.081234},{"lat":42.314171,"lng":-4.030594},{"lat":42.327879,"lng":-3.981762},{"lat":42.337942,"lng":-3.933},{"lat":42.339939,"lng":-3.835401},{"lat":42.349243,"lng":-3.821776},{"lat":42.351648,"lng":-3.795429},{"lat":42.353259,"lng":-3.786832},{"lat":42.352965,"lng":-3.777751},{"lat":42.340433,"lng":-3.717858},{"lat":42.340354,"lng":-3.706962},{"lat":42.343337,"lng":-3.688577},{"lat":42.364465,"lng":-3.62044},{"lat":42.367444,"lng":-3.603885},{"lat":42.360039,"lng":-3.585549},{"lat":42.361911,"lng":-3.555605},{"lat":42.369363,"lng":-3.554219},{"lat":42.380241,"lng":-3.529955},{"lat":42.369728,"lng":-3.478381},{"lat":42.377945,"lng":-3.418663},{"lat":42.366233,"lng":-3.364735},{"lat":42.374815,"lng":-3.336978},{"lat":42.388587,"lng":-3.31589},{"lat":42.395761,"lng":-3.302286},{"lat":42.406342,"lng":-3.282098},{"lat":42.413124,"lng":-3.243831},{"lat":42.421296,"lng":-3.18943},{"lat":42.420478,"lng":-3.15907},{"lat":42.430764,"lng":-3.118437},{"lat":42.434034,"lng":-3.093159},{"lat":42.438101,"lng":-3.062139},{"lat":42.448983,"lng":-3.032924},{"lat":42.448397,"lng":-3.017692},{"lat":42.436362,"lng":-2.934356},{"lat":42.412807,"lng":-2.895989},{"lat":42.427389,"lng":-2.860271},{"lat":42.433304,"lng":-2.820744},{"lat":42.420747,"lng":-2.789038},{"lat":42.41495,"lng":-2.734045},{"lat":42.418479,"lng":-2.719545},{"lat":42.414982,"lng":-2.678363},{"lat":42.412597,"lng":-2.6486},{"lat":42.404286,"lng":-2.62574},{"lat":42.417072,"lng":-2.598201},{"lat":42.415071,"lng":-2.587631},{"lat":42.430724,"lng":-2.563134},{"lat":42.432588,"lng":-2.559324},{"lat":42.436516,"lng":-2.516295},{"lat":42.448084,"lng":-2.503751},{"lat":42.449849,"lng":-2.497704},{"lat":42.462104,"lng":-2.467104},{"lat":42.483931,"lng":-2.432595},{"lat":42.496088,"lng":-2.38869},{"lat":42.514894,"lng":-2.376273},{"lat":42.526331,"lng":-2.326044},{"lat":42.54169,"lng":-2.297931},{"lat":42.550471,"lng":-2.268146},{"lat":42.562905,"lng":-2.235611},{"lat":42.57364,"lng":-2.193297},{"lat":42.593083,"lng":-2.156749},{"lat":42.600481,"lng":-2.126658},{"lat":42.604693,"lng":-2.116472},{"lat":42.621297,"lng":-2.102215},{"lat":42.633932,"lng":-2.08825},{"lat":42.637586,"lng":-2.080772},{"lat":42.646354,"lng":-2.047905},{"lat":42.669538,"lng":-2.023929},{"lat":42.663306,"lng":-2.013284},{"lat":42.661356,"lng":-2.002706},{"lat":42.663391,"lng":-1.986981},{"lat":42.673481,"lng":-1.943983},{"lat":42.678901,"lng":-1.930832},{"lat":42.67767,"lng":-1.895611},{"lat":42.669244,"lng":-1.859484},{"lat":42.661368,"lng":-1.84498},{"lat":42.676382,"lng":-1.806319},{"lat":42.687752,"lng":-1.77281},{"lat":42.708654,"lng":-1.761337},{"lat":42.732691,"lng":-1.748948},{"lat":42.761038,"lng":-1.712818},{"lat":42.793868,"lng":-1.673119},{"lat":42.81706,"lng":-1.649431},{"lat":42.821061,"lng":-1.643177},{"lat":42.836162,"lng":-1.604184},{"lat":42.851108,"lng":-1.586178},{"lat":42.873627,"lng":-1.569265},{"lat":42.894923,"lng":-1.549592},{"lat":42.900535,"lng":-1.540685},{"lat":42.906377,"lng":-1.525571},{"lat":42.923938,"lng":-1.504641},{"lat":42.932114,"lng":-1.497117},{"lat":42.939579,"lng":-1.487437},{"lat":42.939549,"lng":-1.471702},{"lat":42.955676,"lng":-1.455285},{"lat":42.959888,"lng":-1.448399},{"lat":42.977485,"lng":-1.398284},{"lat":42.975865,"lng":-1.379958},{"lat":42.979114,"lng":-1.369683},{"lat":42.988457,"lng":-1.336408},{"lat":43.008698,"lng":-1.320066},{"lat":43.008698,"lng":-1.320066}]
+  };
+  const rutaSimuladaId = document.getElementById('mev-ruta')?.value || '';
+  let rutaSimulada = rutaSimuladaId;
+  let rutaPersonalizada = rutaSimuladaId && RUTAS_PREDEFINIDAS[rutaSimuladaId] ? RUTAS_PREDEFINIDAS[rutaSimuladaId] : [];
   let hitosArray = [];
   try { hitosArray = JSON.parse(document.getElementById('mev-hitos')?.value || '[]'); } catch(e) {}
 
@@ -1998,7 +2001,8 @@ async function guardarEvento() {
     objetivo: parseInt(document.getElementById('mev-objetivo')?.value) || 0,
     deporte: document.getElementById('mev-deporte')?.value || '',
     rutaSimulada,
-    rutaPersonalizada: rutaJson ? JSON.parse(rutaJson) : [],
+    rutaUrl: document.getElementById('mev-ruta-url')?.value.trim() || '',
+    rutaPersonalizada: [],
     hitos: hitosArray,
     premio: document.getElementById('mev-premio').value.trim(),
     insigniaId: document.getElementById('mev-insignia-id')?.value.trim() || '',
@@ -2157,6 +2161,33 @@ async function subirImagenEvento() {  const file = document.getElementById('mev-
     progress.style.display = 'none';
     toast('Error al subir la imagen', 'error');
    }
+}
+async function subirRutaEvento() {
+  const file = document.getElementById('mev-ruta-file').files[0];
+  if (!file) return;
+  const progress = document.getElementById('mev-ruta-progress');
+  const info = document.getElementById('mev-ruta-info');
+  const input = document.getElementById('mev-ruta-url');
+  progress.style.display = 'block';
+  info.style.display = 'none';
+  try {
+    const texto = await file.text();
+    const puntos = JSON.parse(texto);
+    if (!Array.isArray(puntos) || puntos.length < 2) {
+      throw new Error('El JSON no tiene el formato correcto');
+    }
+    const storageRef = storage.ref(`eventos/rutas/${Date.now()}_${file.name}`);
+    await storageRef.putString(texto, 'raw', { contentType: 'application/json' });
+    const url = await storageRef.getDownloadURL();
+    input.value = url;
+    progress.style.display = 'none';
+    info.style.display = 'block';
+    info.textContent = `✓ Ruta cargada: ${puntos.length} puntos`;
+    toast('Ruta subida correctamente', 'success');
+  } catch(e) {
+    progress.style.display = 'none';
+    toast('Error al subir la ruta: ' + e.message, 'error');
+  }
 }
 </script>
 </body>
