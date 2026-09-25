@@ -2142,9 +2142,13 @@ function toggleTipoEvento() {
   const boosts = document.getElementById('mev-boosts-row');
   boosts.style.display = (tipo === 'xp_boost' || tipo === 'monedas_boost') ? 'grid' : 'none';
 }
-document.getElementById('mev-ruta').addEventListener('change', function() {
-  document.getElementById('mev-ruta-json-wrap').style.display = this.value === 'personalizada' ? 'block' : 'none';
-});
+const mevRuta = document.getElementById('mev-ruta');
+if (mevRuta) {
+  mevRuta.addEventListener('change', function() {
+    const wrap = document.getElementById('mev-ruta-json-wrap');
+    if (wrap) wrap.style.display = this.value === 'personalizada' ? 'block' : 'none';
+  });
+}
 async function subirImagenEvento() {  const file = document.getElementById('mev-imagen-file').files[0];
   if (!file) return;
   const progress = document.getElementById('mev-imagen-progress');
