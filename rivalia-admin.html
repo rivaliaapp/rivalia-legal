@@ -845,22 +845,61 @@ tr:hover td { background: var(--table-hover); }
       </div>
 
       <!-- TAB RECOMPENSA -->
-      <div class="tab-panel" id="mev-tab-recompensa">
-        <div class="form-row"><div class="form-label">Texto de recompensa</div><input class="form-input" id="mev-premio" placeholder="Insignia exclusiva Vieira del Camino"></div>
-        <div class="form-row"><div class="form-label">ID del asset de la insignia</div><input class="form-input" id="mev-insignia-id" placeholder="medalla_camino_santiago"></div>
-        <div class="form-row"><div class="form-label">URL imagen insignia</div><input class="form-input" id="mev-insignia-url" placeholder="https://firebasestorage..."></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-          <div class="form-row">
-            <div class="form-label">Rival$ al completar</div>
-            <input class="form-input" id="mev-reward-rivales" type="number" placeholder="0">
+            <div class="tab-panel" id="mev-tab-recompensa">
+        <div style="font-size:12px;color:var(--text3);margin-bottom:14px">Configura las recompensas por tramos de aportación. El usuario recibe el tramo más alto que haya alcanzado al finalizar el evento.</div>
+
+        <!-- BRONCE -->
+        <div style="border:1px solid #CD7F32;border-radius:8px;padding:14px;margin-bottom:12px">
+          <div style="font-size:11px;font-weight:900;color:#CD7F32;letter-spacing:1.5px;margin-bottom:10px">🥉 TRAMO BRONCE</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+            <div class="form-row" style="margin:0"><div class="form-label">Km mínimos aportados</div><input class="form-input" id="mev-bronce-km" type="number" placeholder="10"></div>
+            <div class="form-row" style="margin:0"><div class="form-label">Rival$</div><input class="form-input" id="mev-bronce-rivales" type="number" placeholder="50"></div>
           </div>
-          <div class="form-row">
-            <div class="form-label">XP al completar</div>
-            <input class="form-input" id="mev-reward-xp" type="number" placeholder="0">
+          <div class="form-row" style="margin-bottom:8px"><div class="form-label">Imagen medalla bronce</div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input class="form-input" id="mev-bronce-url" placeholder="URL (se rellena al subir)" readonly style="flex:1;font-size:11px">
+              <label class="btn" style="cursor:pointer;white-space:nowrap;flex-shrink:0"><i class="ti ti-upload"></i> Subir<input type="file" accept="image/*" style="display:none" onchange="subirMedalla('bronce',this)"></label>
+            </div>
+            <div id="mev-bronce-info" style="font-size:11px;color:#52B788;margin-top:4px;display:none"></div>
           </div>
         </div>
+
+        <!-- PLATA -->
+        <div style="border:1px solid #A8A9AD;border-radius:8px;padding:14px;margin-bottom:12px">
+          <div style="font-size:11px;font-weight:900;color:#A8A9AD;letter-spacing:1.5px;margin-bottom:10px">🥈 TRAMO PLATA</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+            <div class="form-row" style="margin:0"><div class="form-label">Km mínimos aportados</div><input class="form-input" id="mev-plata-km" type="number" placeholder="50"></div>
+            <div class="form-row" style="margin:0"><div class="form-label">Rival$</div><input class="form-input" id="mev-plata-rivales" type="number" placeholder="150"></div>
+          </div>
+          <div class="form-row" style="margin-bottom:8px"><div class="form-label">Imagen medalla plata</div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input class="form-input" id="mev-plata-url" placeholder="URL (se rellena al subir)" readonly style="flex:1;font-size:11px">
+              <label class="btn" style="cursor:pointer;white-space:nowrap;flex-shrink:0"><i class="ti ti-upload"></i> Subir<input type="file" accept="image/*" style="display:none" onchange="subirMedalla('plata',this)"></label>
+            </div>
+            <div id="mev-plata-info" style="font-size:11px;color:#52B788;margin-top:4px;display:none"></div>
+          </div>
+        </div>
+
+        <!-- ORO -->
+        <div style="border:1px solid #E6B84B;border-radius:8px;padding:14px;margin-bottom:12px">
+          <div style="font-size:11px;font-weight:900;color:#E6B84B;letter-spacing:1.5px;margin-bottom:10px">🥇 TRAMO ORO</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+            <div class="form-row" style="margin:0"><div class="form-label">Km mínimos aportados</div><input class="form-input" id="mev-oro-km" type="number" placeholder="100"></div>
+            <div class="form-row" style="margin:0"><div class="form-label">Rival$</div><input class="form-input" id="mev-oro-rivales" type="number" placeholder="300"></div>
+          </div>
+          <div class="form-row" style="margin-bottom:8px"><div class="form-label">Imagen medalla oro</div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input class="form-input" id="mev-oro-url" placeholder="URL (se rellena al subir)" readonly style="flex:1;font-size:11px">
+              <label class="btn" style="cursor:pointer;white-space:nowrap;flex-shrink:0"><i class="ti ti-upload"></i> Subir<input type="file" accept="image/*" style="display:none" onchange="subirMedalla('oro',this)"></label>
+            </div>
+            <div id="mev-oro-info" style="font-size:11px;color:#52B788;margin-top:4px;display:none"></div>
+          </div>
+        </div>
+
+        <!-- TEXTO GENERAL -->
+        <div class="form-row"><div class="form-label">Texto de recompensa (visible en la app)</div><input class="form-input" id="mev-premio" placeholder="Insignia exclusiva Vieira del Camino"></div>
         <div style="background:rgba(82,183,136,0.06);border:1px solid rgba(82,183,136,0.2);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--text3);margin-top:4px">
-          La insignia se acredita automáticamente cuando el evento se completa. El ID debe coincidir con un asset en <code style="color:#52B788">assets/medallas/</code>.
+          Las medallas se acreditan automáticamente al finalizar el evento según la aportación de cada usuario.
         </div>
       </div>
 
@@ -2007,6 +2046,11 @@ async function guardarEvento() {
     rutaSimulada,
     rutaUrl: document.getElementById('mev-ruta-url')?.value.trim() || '',
     rutaPersonalizada: [],
+    tramos: {
+      bronce: { kmMinimos: parseInt(document.getElementById('mev-bronce-km')?.value) || 0, rivales: parseInt(document.getElementById('mev-bronce-rivales')?.value) || 0, medallaUrl: document.getElementById('mev-bronce-url')?.value.trim() || '' },
+      plata:  { kmMinimos: parseInt(document.getElementById('mev-plata-km')?.value) || 0,  rivales: parseInt(document.getElementById('mev-plata-rivales')?.value) || 0,  medallaUrl: document.getElementById('mev-plata-url')?.value.trim() || ''  },
+      oro:    { kmMinimos: parseInt(document.getElementById('mev-oro-km')?.value) || 0,    rivales: parseInt(document.getElementById('mev-oro-rivales')?.value) || 0,    medallaUrl: document.getElementById('mev-oro-url')?.value.trim() || ''    },
+    },
     hitos: hitosArray,
     premio: document.getElementById('mev-premio').value.trim(),
     insigniaId: document.getElementById('mev-insignia-id')?.value.trim() || '',
@@ -2247,6 +2291,27 @@ async function subirFotoHito(input) {
     info.textContent = '✓ Foto subida';
     info.style.color = '#52B788';
     actualizarHitosJSON();
+  } catch(e) {
+    info.textContent = 'Error al subir';
+    info.style.color = '#D94343';
+  }
+}
+
+async function subirMedalla(nivel, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const urlInput = document.getElementById(`mev-${nivel}-url`);
+  const info = document.getElementById(`mev-${nivel}-info`);
+  info.style.display = 'block';
+  info.textContent = 'Subiendo...';
+  info.style.color = '#E6B84B';
+  try {
+    const storageRef = storage.ref(`eventos/medallas/${nivel}_${Date.now()}_${file.name}`);
+    await storageRef.put(file);
+    const url = await storageRef.getDownloadURL();
+    urlInput.value = url;
+    info.textContent = '✓ Medalla subida';
+    info.style.color = '#52B788';
   } catch(e) {
     info.textContent = 'Error al subir';
     info.style.color = '#D94343';
