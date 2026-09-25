@@ -833,10 +833,14 @@ tr:hover td { background: var(--table-hover); }
             <div id="mev-ruta-info" style="font-size:11px;color:#52B788;margin-top:4px;display:none"></div>
           </div>
         </div>
-        <div class="form-row">
-          <div class="form-label">Hitos intermedios (JSON)</div>
-          <textarea class="form-input" id="mev-hitos" rows="4" placeholder='[{"nombre":"Pamplona","km":790,"foto":"https://..."},{"nombre":"Burgos","km":550,"foto":"https://..."}]' style="resize:vertical;font-family:monospace;font-size:11px"></textarea>
-          <div style="font-size:11px;color:var(--text4);margin-top:4px">Al alcanzar cada hito se publica automáticamente en el feed con la foto indicada.</div>
+                <div class="form-row">
+          <div class="form-label">Hitos intermedios</div>
+          <div id="mev-hitos-lista" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px"></div>
+          <button class="btn" type="button" onclick="añadirHito()" style="align-self:flex-start">
+            <i class="ti ti-plus"></i> Añadir hito
+          </button>
+          <div style="font-size:11px;color:var(--text4);margin-top:8px">Al alcanzar cada hito se publica automáticamente en el feed con la foto indicada.</div>
+          <input type="hidden" id="mev-hitos">
         </div>
       </div>
 
@@ -2186,8 +2190,77 @@ async function subirRutaEvento() {
     toast('Ruta subida correctamente', 'success');
   } catch(e) {
     progress.style.display = 'none';
-    toast('Error al subir la ruta: ' + e.message, 'error');
+        toast('Error al subir la ruta: ' + e.message, 'error');
   }
+}
+function añadirHito() {
+  const lista = document.getElementById('mev-hitos-lista');
+  const idx = lista.children.length;
+  const div = document.createElement('div');
+  div.id = `hito-${idx}`;
+  div.style.cssText = 'background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px;position:relative';
+  div.innerHTML = `
+    <button type="button" onclick="this.parentElement.remove();actualizarHitosJSON()" style="position:absolute;top:8px;right:8px;background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px">✕</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div>
+        <div class="form-label" style="margin-bottom:4px">Nombre</div>
+        <input class="form-input" placeholder="Ej. Pamplona" oninput="actualizarHitosJSON()" style="width:100%">
+      </div>
+      <div>
+        <div class="form-label" style="margin-bottom:4px">Km restantes al llegar</div>
+        <input class="form-input" type="number" placeholder="Ej. 700" oninput="actualizarHitosJSON()" style="width:100%">
+      </div>
+    </div>
+    <div>
+      <div class="form-label" style="margin-bottom:4px">Foto del lugar</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input class="form-input" placeholder="URL (se rellena al subir)" readonly style="flex:1;font-size:11px" data-foto>
+        <label class="btn" style="cursor:pointer;white-space:nowrap;flex-shrink:0">
+          <i class="ti ti-upload"></i> Subir foto
+          <input type="file" accept="image/*" style="display:none" onchange="subirFotoHito(this)">
+        </label>
+      </div>
+      <div style="font-size:11px;color:#52B788;margin-top:4px;display:none" data-info></div>
+    </div>
+  `;
+  lista.appendChild(div);
+}
+
+async function subirFotoHito(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const hito = input.closest('[id^="hito-"]');
+  const urlInput = hito.querySelector('[data-foto]');
+  const info = hito.querySelector('[data-info]');
+  info.style.display = 'block';
+  info.textContent = 'Subiendo...';
+  info.style.color = '#E6B84B';
+  try {
+    const storageRef = storage.ref(`eventos/hitos/${Date.now()}_${file.name}`);
+    await storageRef.put(file);
+    const url = await storageRef.getDownloadURL();
+    urlInput.value = url;
+    info.textContent = '✓ Foto subida';
+    info.style.color = '#52B788';
+    actualizarHitosJSON();
+  } catch(e) {
+    info.textContent = 'Error al subir';
+    info.style.color = '#D94343';
+  }
+}
+
+function actualizarHitosJSON() {
+  const lista = document.getElementById('mev-hitos-lista');
+  const hitos = [];
+  for (const div of lista.children) {
+    const inputs = div.querySelectorAll('input.form-input:not([type="file"])');
+    const nombre = inputs[0]?.value.trim();
+    const km = inputs[1]?.value.trim();
+    const foto = div.querySelector('[data-foto]')?.value.trim();
+    if (nombre || km) hitos.push({ nombre: nombre || '', km: km ? parseInt(km) : 0, foto: foto || '' });
+  }
+  document.getElementById('mev-hitos').value = JSON.stringify(hitos);
+}
 }
 </script>
 </body>
