@@ -2057,14 +2057,15 @@ async function guardarEvento() {
     insigniaUrl: document.getElementById('mev-insignia-url')?.value.trim() || '',
     rewardRivales: parseInt(document.getElementById('mev-reward-rivales')?.value) || 0,
     rewardXp: parseInt(document.getElementById('mev-reward-xp')?.value) || 0,
-    progreso: 0,
-    participantesCount: 0,
     activo: document.getElementById('mev-activo').checked,
     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
   };
   try {
-    if (editandoEventoId) {
-      await db.collection('eventos').doc(editandoEventoId).update(datos);
+        if (editandoEventoId) {
+      const datosEdicion = { ...datos };
+      delete datosEdicion.progreso;
+      delete datosEdicion.participantesCount;
+      await db.collection('eventos').doc(editandoEventoId).update(datosEdicion);
       toast('Evento actualizado');
     } else {
       datos.createdAt = firebase.firestore.FieldValue.serverTimestamp();
